@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="zh-CN" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>人大附中社团联合会</title>
+    <meta name="viewport" content="initial-scale=1,width=device-width" />
+    <style>
+      html,body,#wrapper{
+        width: 100%;
+        height: 100%;
+      }
+
+      .mdc-text-field{
+        width: 261px !important;
+      }
+
+      img{
+        vertical-align: bottom;
+      }
+
+      body{
+        margin: 0px;
+        background-color:#ddd;
+      }
+
+      #wrapper{
+        display: table;
+      }
+
+      .padding{
+        display: table-row;
+        height: auto;
+      }
+
+      #content-out{
+        display: table-row;
+        text-align: center;
+        width: 100%;
+        height:0px;
+      }
+
+      @media(min-width:500px){
+        #content-in,#content{
+          width:500px;
+        }
+      }
+      @media(max-width:499px){
+        #content-in,#content{
+          width:100%;
+        }
+        #content-in{
+          padding:0 !important;
+        }
+      }
+      #content-in{
+        display: inline-block;
+        padding:10px;
+      }
+
+      #content{
+        display: block;
+        position: relative;
+        padding:3px;
+        padding-bottom: 24px;
+      }
+
+      #link{
+        position: absolute;
+        bottom: 3px;
+        left: 3px;
+      }
+    </style>
+    <link rel="stylesheet" type="text/css" href="https://unpkg.com/material-components-web@latest/dist/material-components-web.min.css">
+    <link rel="stylesheet" href="https://fonts.loli.net/icon?family=Material+Icons">
+  </head>
+  <body>
+    <div id="wrapper">
+      <div class="padding"></div>
+      <div id="content-out">
+        <div id="content-in">
+          <div id="content" class="mdc-card">
+            <h1 class="mdc-typography--headline4" id="title">人大附中社团管理平台</h1>
+            <div class="">
+                <form name="form1" action="/login" method="post">
+                  <div class="mdc-text-field mdc-text-field--outlined mdc-text-field--with-leading-icon" data-mdc-auto-init="MDCTextField">
+                    <i class="material-icons mdc-text-field__icon" role="button">account_circle</i>
+                    <input type="text" name="username" class="mdc-text-field__input">
+                    <div class="mdc-notched-outline">
+                      <div class="mdc-notched-outline__leading"></div>
+                      <div class="mdc-notched-outline__notch">
+                        <label for="username" class="mdc-floating-label">用户名</label>
+                      </div>
+                      <div class="mdc-notched-outline__trailing"></div>
+                    </div>
+                  </div>
+                  <br /><br />
+                  <div class="mdc-text-field mdc-text-field--outlined mdc-text-field--with-leading-icon" data-mdc-auto-init="MDCTextField">
+                    <i class="material-icons mdc-text-field__icon" role="button">lock</i>
+                    <input type="password" id="password" class="mdc-text-field__input">
+                    <div class="mdc-notched-outline">
+                      <div class="mdc-notched-outline__leading"></div>
+                      <div class="mdc-notched-outline__notch">
+                        <label for="password" class="mdc-floating-label">密码</label>
+                      </div>
+                      <div class="mdc-notched-outline__trailing"></div>
+                    </div>
+                  </div>
+                  <br /><br />
+                  <input data-mdc-auto-init="MDCRipple" type="submit" class="mdc-button mdc-button--raised" style="width:66px;" value="登录">
+                </form>
+              </div>
+            <div id="link">
+              <a target="_blank" href="https://github.com/KEEER/SAU/"><img src="/img/github.svg" /></a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="padding"></div>
+    </div>
+    <script src="https://unpkg.com/material-components-web@latest/dist/material-components-web.min.js"></script>
+    <script>mdc.autoInit();</script>
+  </body>
+</html>

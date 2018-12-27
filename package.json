@@ -1,0 +1,25 @@
+{
+  "name": "sau",
+  "version": "0.0.0",
+  "description": "An application for the SAU of RDFZ",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/KEEER/SAU.git"
+  },
+  "keywords": [
+    "rdfz"
+  ],
+  "author": "Alan-Liang",
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/KEEER/SAU/issues"
+  },
+  "homepage": "https://github.com/KEEER/SAU#readme",
+  "dependencies": {
+    "ejs": "^2.6.1"
+  }
+}
