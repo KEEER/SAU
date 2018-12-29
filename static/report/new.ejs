@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="zh-CN" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>新建活动 | 人大附中社团管理平台</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#" />
+    <link rel="shortcut icon" href="/favicon.ico">
+    <link rel="stylesheet" type="text/css" href="https://unpkg.com/material-components-web@latest/dist/material-components-web.min.css">
+    <link rel="stylesheet" href="https://fonts.loli.net/icon?family=Material+Icons">
+    <link rel="stylesheet" type="text/css" href="/styles.css">
+  </head>
+  <body>
+    <div class="mdc-drawer mdc-drawer--modal" id="drawer" data-mdc-auto-init="MDCDrawer">
+      <div class="mdc-drawer__content">
+        <ul class="mdc-list" id="menu-list">
+          <a href="/home" class="mdc-list-item mdc-ripple" data-mdc-auto-init="MDCRipple">
+            <i class="material-icons mdc-list-item__graphic" aria-hidden="true">home</i>
+            <div class="mdc-list-item-content">首页</div>
+          </a>
+          <% if(user.role==="admin"||user.role==="officer") { %>
+            <a href="/associations" class="mdc-list-item mdc-ripple" data-mdc-auto-init="MDCRipple">
+              <i class="material-icons mdc-list-item__graphic" aria-hidden="true">group</i>
+              <div class="mdc-list-item-content">社团</div>
+            </a>
+          <% } %>
+          <a href="/messages" class="mdc-list-item mdc-ripple" data-mdc-auto-init="MDCRipple">
+            <i class="material-icons mdc-list-item__graphic" aria-hidden="true">message</i>
+            <div class="mdc-list-item-content">消息</div>
+          </a>
+        </ul>
+
+        <div id="user-controls" class="mdc-list">
+          <a href="/settings" class="mdc-list-item mdc-ripple" data-mdc-auto-init="MDCRipple">
+            <i class="material-icons mdc-list-item__graphic">lock</i>
+            <div class="mdc-list-item-content">修改密码</div>
+          </a>
+          <a href="/logout" class="mdc-list-item mdc-ripple" data-mdc-auto-init="MDCRipple">
+            <i class="material-icons mdc-list-item__graphic">exit_to_app</i>
+            <div class="mdc-list-item-content">退出</div>
+          </a>
+        </div>
+      </div>
+    </div>
+    <div class="mdc-drawer-scrim"></div>
+
+    <header class="mdc-top-app-bar" data-mdc-auto-init="MDCTopAppBar">
+      <div class="mdc-top-app-bar__row">
+        <section class="mdc-top-app-bar__section mdc-top-app-bar__section--align-start">
+          <a href="javascript:void(0);" onclick="document.getElementById('drawer').MDCDrawer.open=!0;" data-mdc-auto-init="MDCRipple" class="material-icons mdc-top-app-bar__navigation-icon">menu</a>
+          <span class="mdc-top-app-bar__title">新建活动</span>
+        </section>
+      </div>
+    </header>
+    <div id="wrapper" class="mdc-top-app-bar--fixed-adjust">
+      <div id="content-in">
+        <div id="content">
+          <div class="mdc-card left" id="report-new">
+            <% switch(user.role) {
+               case "association":%>
+            <p>社团：<%= user.name %></p>
+            <form action="/report/new" method="post">
+            <%- include("../input",{label:"标题",name:"title"}) %>
+            <%- include("../select",{label:"活动规模",name:"size",options:[{label:"小型活动",value:"small"},{label:"大型活动",value:"large"},{label:"超大型活动",value:"xlarge"}]}) %>
+            <%- include("../input",{label:"开始时间",name:"begin",type:"datetime-local"}) %>
+            <%- include("../input",{label:"持续时间",name:"time"}) %>
+            <%- include("../textarea",{label:"内容",name:"desc"}) %>
+            <hr />
+            <p>附件</p>
+            <button id="add-file" class="mdc-button mdc-button--raised" data-mdc-auto-init="MDCRipple" onclick="document.getElementById('file').click();event.preventDefault();">添加文件</button>
+            <input type="file" id="file" hidden />
+            <hr />
+            <p>提交后不可以删除或修改，请谨慎提交。</p>
+            <input type="submit" class="mdc-button mdc-button--raised" data-mdc-auto-init="MDCRipple" value="提交" />
+            </form>
+            <% break;
+               default:%>
+            您的身份不可以新建活动。
+            <% break;
+              } %>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script src="https://unpkg.com/material-components-web@latest/dist/material-components-web.min.js"></script>
+    <script>mdc.autoInit();</script>
+    <!--div style="display:none;">
+      <script src="https://s23.cnzz.com/z_stat.php?id=1275351229&web_id=1275351229" language="JavaScript"></script>
+    </div-->
+  </body>
+</html>
