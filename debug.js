@@ -3,6 +3,8 @@ const fs = require('fs');
 const ejs = require('ejs');
 const url = require('url');
 
+ejs.rmWhitespace=true;
+
 const server = http.createServer(async (req, resp) => {
   const path = url.parse(req.url).pathname;
   if(path == "/") {
@@ -22,7 +24,36 @@ const server = http.createServer(async (req, resp) => {
   }
   let html;
   try{
-    html = await ejs.renderFile("static"+path+".ejs",{user:{role:"association",name:"KEEER",reports:[{title:"Report Title", link:"/home"}],applications:[{title:"Application Title", link:"/home"}]}});
+    html = await ejs.renderFile("static"+path+".ejs",{
+      user:{
+        role:"association",
+        name:"KEEER",
+        reports:[
+          {
+            title:"活动1",
+            id:"report"
+          }
+        ],
+        applications:[
+          {
+            title:"Application Title",
+            id:"new"
+          }
+        ]
+      },
+      report:{
+        title:"活动1",
+        name:"客页KEEER",
+        begin:"2018年",
+        time:"1秒",
+        place:"空中花园",
+        size:"xlarge",
+        content:"你\n好\n<script>alert(/xss/);</script>\n",
+        checkedsize:"large",
+        score:200
+      }
+    }
+  );
   } catch(e) {
     html = "<textarea>Error: "+e.stack+"</textarea>";
   } finally {

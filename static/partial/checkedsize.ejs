@@ -1,0 +1,28 @@
+<% switch(user.role){
+  case "association": %>
+  <%= size(report.checkedsize)||"未打分" %>
+  <% break;
+  case "officer":
+  case "admin": %>
+  <br />
+  <%- include("../mdc/select",{label:"活动规模",name:"size",required:true,value:report.checkedsize||report.size,options:[{label:"小型活动",value:"small"},{label:"大型活动",value:"large"},{label:"超大型活动",value:"xlarge"},{label:"校外活动",value:"outer"}]}) %>
+  <script>
+  function score(size){
+    switch(size){
+      case "small":
+      return 100;
+      case "large":
+      case "xlarge":
+      case "outer":
+      return 200;
+      default:
+      return 0;
+    }
+  }
+  [].filter.call(document.querySelectorAll("input"),function(el){return el.name=="size";})[0].parentElement.addEventListener("MDCSelect:change",function(){
+    var el=[].filter.call(document.querySelectorAll("input"),function(el){return el.name=="score";})[0];
+    el.value=score(this.MDCSelect.value);
+  });
+  </script>
+  <% break;
+} %>

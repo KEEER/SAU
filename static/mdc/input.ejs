@@ -1,0 +1,12 @@
+<div class="mdc-text-field mdc-text-field--outlined mdc-theme--secondary<% if(typeof icon!==typeof void(0)){ %> mdc-text-field--with-leading-icon<% } %>" data-mdc-auto-init="MDCTextField">
+  <% if(typeof icon!==typeof void(0)){ %><i class="material-icons mdc-text-field__icon" role="button"><%= icon %></i><% } %>
+  <input type="<%= typeof type!==typeof void(0)?type:"text" %>" value="<%= typeof value===typeof void(0)?"":value %>" name="<%= name %>"<%= typeof required!==typeof void(0)&&required?" required":"" %> class="mdc-text-field__input">
+  <div class="mdc-notched-outline">
+    <div class="mdc-notched-outline__leading"></div>
+      <div class="mdc-notched-outline__notch">
+        <label for="<%= name %>" class="mdc-floating-label"><%= label %></label>
+      </div>
+    <div class="mdc-notched-outline__trailing"></div>
+  </div>
+</div>
+<br /><br />

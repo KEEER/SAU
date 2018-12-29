@@ -11,50 +11,8 @@
     <link rel="stylesheet" type="text/css" href="/styles.css">
   </head>
   <body>
-    <div class="mdc-drawer mdc-drawer--modal" id="drawer" data-mdc-auto-init="MDCDrawer">
-      <div class="mdc-drawer__header">
-        <h3 class="mdc-drawer__title"><%= user.role=="admin"?"管理员":user.role=="officer"?`干事 ${user.name}`:`社团 ${user.name}` %></h3>
-      </div>
-      <div class="mdc-drawer__content">
-        <ul class="mdc-list" id="menu-list">
-          <a href="/home" class="mdc-list-item mdc-ripple" data-mdc-auto-init="MDCRipple">
-            <i class="material-icons mdc-list-item__graphic" aria-hidden="true">home</i>
-            <div class="mdc-list-item-content">首页</div>
-          </a>
-          <% if(user.role==="admin"||user.role==="officer") { %>
-            <a href="/associations" class="mdc-list-item mdc-ripple" data-mdc-auto-init="MDCRipple">
-              <i class="material-icons mdc-list-item__graphic" aria-hidden="true">group</i>
-              <div class="mdc-list-item-content">社团</div>
-            </a>
-          <% } %>
-          <a href="/messages" class="mdc-list-item mdc-ripple" data-mdc-auto-init="MDCRipple">
-            <i class="material-icons mdc-list-item__graphic" aria-hidden="true">message</i>
-            <div class="mdc-list-item-content">消息</div>
-          </a>
-        </ul>
-
-        <div id="user-controls" class="mdc-list">
-          <a href="/settings" class="mdc-list-item mdc-ripple" data-mdc-auto-init="MDCRipple">
-            <i class="material-icons mdc-list-item__graphic">lock</i>
-            <div class="mdc-list-item-content">修改密码</div>
-          </a>
-          <a href="/logout" class="mdc-list-item mdc-ripple" data-mdc-auto-init="MDCRipple">
-            <i class="material-icons mdc-list-item__graphic">exit_to_app</i>
-            <div class="mdc-list-item-content">退出</div>
-          </a>
-        </div>
-      </div>
-    </div>
-    <div class="mdc-drawer-scrim"></div>
-
-    <header class="mdc-top-app-bar" data-mdc-auto-init="MDCTopAppBar">
-      <div class="mdc-top-app-bar__row">
-        <section class="mdc-top-app-bar__section mdc-top-app-bar__section--align-start">
-          <a href="javascript:void(0);" onclick="document.getElementById('drawer').MDCDrawer.open=!0;" data-mdc-auto-init="MDCRipple" class="material-icons mdc-top-app-bar__navigation-icon">menu</a>
-          <span class="mdc-top-app-bar__title">人大附中社团管理平台</span>
-        </section>
-      </div>
-    </header>
+    <%- include("partial/drawer",{user:user}) %>
+    <%- include("partial/appbar",{title:"人大附中社团管理平台"}) %>
     <div id="wrapper" class="mdc-top-app-bar--fixed-adjust">
       <div id="content-in">
         <div id="content">
@@ -92,19 +50,31 @@
                 </div>
               </div>
               <div id="reports" class="tab current">
-                <button id="report-add" class="mdc-fab" data-mdc-auto-init="MDCRipple" aria-label="Add">
+                <a href="/report/new" class="mdc-fab" data-mdc-auto-init="MDCRipple" aria-label="New">
                   <span class="mdc-fab__icon material-icons">add</span>
-                </button>
+                </a>
+                <p class="right">
+                  <a href="/report/new" class="mdc-button mdc-button--raised mdc-theme--secondary-bg" data-mdc-auto-init="MDCRipple">
+                    <span class="material-icons">add</span>
+                    新建活动报告
+                  </a>
+                </p>
                 <% user.reports.forEach(report => { %>
-                  <%- include("report-preview",{report:report}); %>
+                  <%- include("partial/report-preview",{report:report}); %>
                 <% }); %>
               </div>
               <div id="applications" class="tab">
-                <button id="application-add" class="mdc-fab" data-mdc-auto-init="MDCRipple" aria-label="Add">
+                <a href="/application/new" class="mdc-fab" data-mdc-auto-init="MDCRipple" aria-label="New">
                   <span class="mdc-fab__icon material-icons">add</span>
-                </button>
+                </a>
+                <p class="right">
+                  <a href="/application/new" class="mdc-button mdc-button--raised mdc-theme--secondary-bg" data-mdc-auto-init="MDCRipple">
+                    <span class="material-icons">add</span>
+                    新建申请
+                  </a>
+                </p>
                 <% user.applications.forEach(app => { %>
-                  <%- include("application-preview",{application:app}); %>
+                  <%- include("partial/application-preview",{application:app}); %>
                 <% }); %>
               </div>
               <script>

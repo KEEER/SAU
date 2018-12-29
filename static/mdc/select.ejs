@@ -1,5 +1,5 @@
-<div class="mdc-select mdc-select--outlined" data-mdc-auto-init="MDCSelect">
-  <input type="hidden" name="<%= name %>">
+<div class="mdc-select mdc-select--outlined mdc-theme--secondary<%= typeof required!==void(0)&&required?" mdc-select--required":"" %>" data-mdc-auto-init="MDCSelect">
+  <input type="hidden"<%= typeof required!==void(0)&&required?" required":"" %> name="<%= name %>" value="<%= typeof value===typeof void(0)?"":value %>">
   <i class="mdc-select__dropdown-icon"></i>
   <div class="mdc-select__selected-text"></div>
   <div class="mdc-select__menu mdc-menu mdc-menu-surface">
@@ -18,6 +18,6 @@
     </div>
     <div class="mdc-notched-outline__trailing"></div>
   </div>
-  <div class="mdc-line-ripple"></div>
+
 </div>
 <br /><br />

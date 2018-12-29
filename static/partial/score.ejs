@@ -1,0 +1,30 @@
+<% let isReport = typeof report !== typeof void(0);
+function score(size){
+  switch(size){
+    case "small":
+    return 100;
+    case "large":
+    case "xlarge":
+    case "outer":
+    return 200;
+    default:
+    return 0;
+  }
+}
+switch(user.role){
+  case "association":
+  if(isReport){ %>
+    <%= report.score||"未打分" %>
+  <% }
+  break;
+
+  case "officer":
+  case "admin":
+  let value;
+  if(isReport){
+    value=report.score||score(report.checkedsize||report.size);
+  }
+  %>
+  <%- include("../mdc/input",{label:"评分",name:"score",required:"true",value,type:"number"}) %>
+  <% break;
+} %>

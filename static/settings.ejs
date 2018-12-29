@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="zh-CN" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>修改密码 | 人大附中社团管理平台</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#" />
+    <link rel="shortcut icon" href="/favicon.ico">
+    <link rel="stylesheet" type="text/css" href="https://unpkg.com/material-components-web@latest/dist/material-components-web.min.css">
+    <link rel="stylesheet" href="https://fonts.loli.net/icon?family=Material+Icons">
+    <link rel="stylesheet" type="text/css" href="/styles.css">
+  </head>
+  <body>
+    <%- include("partial/drawer",{user:user}) %>
+    <%- include("partial/appbar",{title:"修改密码"}) %>
+    <div id="wrapper" class="mdc-top-app-bar--fixed-adjust">
+      <div id="content-in">
+        <div id="content">
+          <div class="mdc-card">
+            <form action="/settings" method="post">
+              <%- include("mdc/input",{label:"原密码",name:"original",type:"password",icon:"lock_open",required:true}) %>
+              <%- include("mdc/input",{label:"新密码",name:"new",type:"password",icon:"lock",required:true}) %>
+              <%- include("mdc/input",{label:"重复新密码",name:"repeat",type:"password",icon:"repeat",required:true}) %>
+              <input type="submit" class="mdc-button mdc-button--raised" data-mdc-auto-init="MDCRipple" value="修改密码" />
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script src="https://unpkg.com/material-components-web@latest/dist/material-components-web.min.js"></script>
+    <script>mdc.autoInit();</script>
+    <!--div style="display:none;">
+      <script src="https://s23.cnzz.com/z_stat.php?id=1275351229&web_id=1275351229" language="JavaScript"></script>
+    </div-->
+  </body>
+</html>

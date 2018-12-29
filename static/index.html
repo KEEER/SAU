@@ -8,6 +8,8 @@
       html,body,#wrapper{
         width: 100%;
         height: 100%;
+        --mdc-theme-primary: #c62828;
+        --mdc-theme-secondary: #2196f3;
       }
 
       .mdc-text-field{
@@ -84,7 +86,7 @@
                 <form name="form1" action="/login" method="post">
                   <div class="mdc-text-field mdc-text-field--outlined mdc-text-field--with-leading-icon" data-mdc-auto-init="MDCTextField">
                     <i class="material-icons mdc-text-field__icon" role="button">account_circle</i>
-                    <input type="text" name="username" class="mdc-text-field__input">
+                    <input type="text" required name="username" autocomplete="username" class="mdc-text-field__input">
                     <div class="mdc-notched-outline">
                       <div class="mdc-notched-outline__leading"></div>
                       <div class="mdc-notched-outline__notch">
@@ -96,7 +98,7 @@
                   <br /><br />
                   <div class="mdc-text-field mdc-text-field--outlined mdc-text-field--with-leading-icon" data-mdc-auto-init="MDCTextField">
                     <i class="material-icons mdc-text-field__icon" role="button">lock</i>
-                    <input type="password" id="password" class="mdc-text-field__input">
+                    <input type="password" required name="password" autocomplete="current-password" class="mdc-text-field__input">
                     <div class="mdc-notched-outline">
                       <div class="mdc-notched-outline__leading"></div>
                       <div class="mdc-notched-outline__notch">
