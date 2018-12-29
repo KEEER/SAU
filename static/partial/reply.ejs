@@ -1,0 +1,19 @@
+<%
+switch(user.role) {
+  case "association":
+  if(application.reply){ %>
+    <div class="content">
+      <%- escapeFn(application.reply).replace(/\n/g,"<br />") %>
+    </div>
+  <% } else { %>
+    未回复
+  <% }
+  break;
+
+  case "officer":
+  case "admin":
+  %>
+  <%- include("../mdc/textarea",{label:"回复",name:"reply",required:true,value:application.reply}) %>
+  <br /><br />
+  <% break;
+} %>

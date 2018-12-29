@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="zh-CN" dir="ltr">
+  <head>
+    <%- include("/partial/header",{title:message.title+" | 消息 | 人大附中社团管理平台"}) %>
+  </head>
+  <body>
+    <%- include("/partial/drawer",{user:user}) %>
+    <%- include("/partial/appbar",{title:message.title+" | 消息"}) %>
+    <div id="wrapper" class="mdc-top-app-bar--fixed-adjust">
+      <div id="content-in">
+        <div id="content">
+          <div class="mdc-card" id="message">
+            <h1 class="mdc-typography-headline1"><%= message.title %></h1>
+            <form method="post">
+              <table>
+                <tr><td class="right" style="min-width:32px;">来自</td><td class="left"><%= message.from %></td></tr>
+                <tr><td class="right">内容</td><td class="content left"><%- escapeFn(message.content).replace(/\n/g,"<br />") %></td></tr>
+                <tr><td class="right">评分</td><td class="left"><%- include("/partial/score",{message,user}) %></td></tr>
+              </table>
+              <% if(user.role=="admin"||user.role=="officer"){ %>
+                <br />
+                <input type="submit" class="mdc-button mdc-button--raised" data-mdc-auto-init="MDCRipple" value="提交更改" />
+              <% } %>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+    <%- include("/partial/footer") %>
+  </body>
+</html>

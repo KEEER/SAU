@@ -89,27 +89,41 @@ html,body{
   width: 100% !important;
 }
 
-#report{
+#report, #application{
   display: block;
 }
 
-#report>p{
-  margin: 0;
-}
-
-#report .content{
+#report .content,
+#application .content,
+#message .content{
   border-radius: 5px;
   border: #ccc 1px solid;
   padding: 10px;
 }
 
-#report .right{
+#report .right,
+#application .right,
+#message .right{
   vertical-align: top;
   color: #777;
 }
 
-#report table{
+#report table,
+#application table,
+#message table{
   display: inline-block;
+}
+
+.message{
+  position: relative;
+  min-height: 68px;
+  padding-right: 58px;
+}
+
+.message-open{
+  position: absolute;
+  right: 12px;
+  top: 12px;
 }
 
 /* Fix MDC bug */

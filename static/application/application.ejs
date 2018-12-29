@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="zh-CN" dir="ltr">
+  <head>
+    <%- include("/partial/header",{title:application.title+" | 申请 | 人大附中社团管理平台"}) %>
+  </head>
+  <body>
+    <%- include("/partial/drawer",{user:user}) %>
+    <%- include("/partial/appbar",{title:application.title+" | 申请"}) %>
+    <div id="wrapper" class="mdc-top-app-bar--fixed-adjust">
+      <div id="content-in">
+        <div id="content">
+          <div class="mdc-card" id="application">
+            <%
+            function type(type){
+              switch(type){
+                case "room":
+                return "教室申请";
+                case "ad":
+                return "宣传申请";
+                case "xl-activity":
+                return "超大型活动申请";
+                case "outer-activity":
+                return "校外活动申请";
+                default:
+                return unknown||"未知";
+              }
+            }
+            %>
+            <h1 class="mdc-typography-headline1"><%= application.title %></h1>
+            <form method="post">
+              <table>
+                <tr><td class="right" style="min-width:64px;">社团</td><td class="left"><%= application.name %></td></tr>
+                <tr><td class="right">申请类型</td><td class="left"><%= type(application.type) %></td></tr>
+                <tr><td class="right">开始时间</td><td class="left"><%= application.begin %></td></tr>
+                <tr><td class="right">持续时间</td><td class="left"><%= application.time %></td></tr>
+                <tr><td class="right">地点</td><td class="left"><%= application.place %></td></tr>
+                <tr><td class="right">内容</td><td class="content left"><%- escapeFn(application.content).replace(/\n/g,"<br />") %></td></tr>
+                <tr><td class="right">附件</td><td class="left">TODO</td></tr>
+                <tr><td class="right">回复</td><td class="left"><%- include("/partial/reply",{application,user}) %></td></tr>
+                <tr><td class="right">扣分</td><td class="left"><%- include("/partial/score",{application,user}) %></td></tr>
+              </table>
+              <% if(user.role=="admin"||user.role=="officer"){ %>
+                <br />
+                <input type="submit" class="mdc-button mdc-button--raised" data-mdc-auto-init="MDCRipple" value="提交更改" />
+              <% } %>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+    <%- include("/partial/footer") %>
+  </body>
+</html>

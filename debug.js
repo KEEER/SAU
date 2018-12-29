@@ -39,6 +39,7 @@ const server = http.createServer(async (req, resp) => {
       user:{
         role:isOfficer?"officer":"association",
         name:"KEEER",
+        score:512,
         reports:[
           {
             title:"活动1",
@@ -47,8 +48,14 @@ const server = http.createServer(async (req, resp) => {
         ],
         applications:[
           {
-            title:"Application Title",
-            id:"new"
+            title:"申请1",
+            id:"application"
+          }
+        ],
+        messages:[
+          {
+            title:"消息1",
+            id:"message"
           }
         ]
       },
@@ -62,7 +69,29 @@ const server = http.createServer(async (req, resp) => {
         content:"你\n好\n<script>alert(/xss/);</script>\n",
         checkedsize:"large",
         score:200
-      }
+      },
+      application:{
+        title:"申请1",
+        name:"客页KEEER",
+        begin:"2018年",
+        time:"1秒",
+        place:"空中花园",
+        type:"room",
+        content:"你\n好\n<script>alert(/xss/);</script>\n",
+        reply:"回复\n已通过\n未通过\n原因：无"
+      },
+      message:{
+        title:"消息1",
+        from:"客页KEEER",
+        to:"???",
+        content:"你\n好\n<script>alert(/xss/);</script>\n",
+        score:-20
+      },
+      associations:[
+        "客页KEEER",
+        "物理社",
+        "化学社"
+      ]
     },
     {
       root:__dirname+"/static/"

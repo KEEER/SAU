@@ -1,6 +1,9 @@
 <div class="mdc-drawer mdc-drawer--modal" id="drawer" data-mdc-auto-init="MDCDrawer">
   <div class="mdc-drawer__header">
     <h3 class="mdc-drawer__title"><%= user.role=="admin"?"管理员":user.role=="officer"?`干事 ${user.name}`:`社团 ${user.name}` %></h3>
+    <% if (user.role === "association") { %>
+      <h6 class="mdc-drawer__subtitle">本学期总分：<%= user.score %></h6>
+    <% } %>
   </div>
   <div class="mdc-drawer__content">
     <ul class="mdc-list" id="menu-list">

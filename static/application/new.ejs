@@ -18,6 +18,7 @@
             <%- include("/mdc/input",{label:"开始时间",name:"begin",required:true}) %>
             <%- include("/mdc/input",{label:"持续时间",name:"time",required:true}) %>
             <%- include("/mdc/select",{label:"类型",name:"type",required:true,options:[{label:"教室申请",value:"room"},{label:"宣传申请",value:"ad"},{label:"超大型活动申请",value:"xl-activity"},{label:"校外活动申请",value:"outer-activity"}]}) %>
+            <%- include("/mdc/input",{label:"地点",name:"place",required:true}) %>
             <%- include("/mdc/textarea",{label:"内容",name:"description",required:true}) %>
             <hr />
             <p>附件</p>
