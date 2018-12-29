@@ -66,3 +66,11 @@ html,body{
     right: 1.5rem;
   }
 }
+
+.left{
+  text-align: left;
+}
+
+.mdc-text-field, .mdc-select, .mdc-select__menu{
+  width: 100% !important;
+}
