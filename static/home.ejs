@@ -12,6 +12,9 @@
   </head>
   <body>
     <div class="mdc-drawer mdc-drawer--modal" id="drawer" data-mdc-auto-init="MDCDrawer">
+      <div class="mdc-drawer__header">
+        <h3 class="mdc-drawer__title"><%= user.role=="admin"?"管理员":user.role=="officer"?`干事 ${user.name}`:`社团 ${user.name}` %></h3>
+      </div>
       <div class="mdc-drawer__content">
         <ul class="mdc-list" id="menu-list">
           <a href="/home" class="mdc-list-item mdc-ripple" data-mdc-auto-init="MDCRipple">
@@ -75,7 +78,7 @@
                         </span>
                         <span class="mdc-tab__ripple"></span>
                       </button>
-                      <button id="apply-tab" class="mdc-tab" role="tab" aria-selected="true" tabindex="1">
+                      <button id="application-tab" class="mdc-tab" role="tab" aria-selected="true" tabindex="1">
                         <span class="mdc-tab__content">
                           <span class="mdc-tab__text-label">申请</span>
                         </span>
@@ -88,22 +91,35 @@
                   </div>
                 </div>
               </div>
-              <div id="reports">
-                <button class="mdc-fab" data-mdc-auto-init="MDCRipple" aria-label="Add">
+              <div id="reports" class="tab current">
+                <button id="report-add" class="mdc-fab" data-mdc-auto-init="MDCRipple" aria-label="Add">
                   <span class="mdc-fab__icon material-icons">add</span>
                 </button>
-                <% for(let i = 0; i < 10; i++) { %>
-                <br />
-                <div class="mdc-card">
-                  Report Title
-                  <div class="mdc-card__actions">
-                    <div class="mdc-card__action-icons">
-                      <button class="material-icons mdc-icon-button mdc-card__action mdc-card__action--icon" title="Open">open_in_new</button>
-                    </div>
-                  </div>
-                </div>
-                <% } %>
+                <% user.reports.forEach(report => { %>
+                  <%- include("report-preview",{report:report}); %>
+                <% }); %>
               </div>
+              <div id="applications" class="tab">
+                <button id="application-add" class="mdc-fab" data-mdc-auto-init="MDCRipple" aria-label="Add">
+                  <span class="mdc-fab__icon material-icons">add</span>
+                </button>
+                <% user.applications.forEach(app => { %>
+                  <%- include("application-preview",{application:app}); %>
+                <% }); %>
+              </div>
+              <script>
+              var $=function(a){return document.querySelector(a);};
+              var reports=$("#reports");
+              var applications=$("#applications");
+              $("#report-tab").onclick=function(){
+                reports.classList.add("current");
+                applications.classList.remove("current");
+              };
+              $("#application-tab").onclick=function(){
+                reports.classList.remove("current");
+                applications.classList.add("current");
+              };
+              </script>
             <% break;
                case "officer":%>
             officer

@@ -50,8 +50,16 @@ html,body{
   padding: 10px;
 }
 
-#reports{
+#reports, #applications{
   text-align: left;
+}
+
+.tab{
+  display: none;
+}
+
+.tab.current{
+  display: block;
 }
 
 .mdc-fab {

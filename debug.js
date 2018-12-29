@@ -22,9 +22,9 @@ const server = http.createServer(async (req, resp) => {
   }
   let html;
   try{
-    html = await ejs.renderFile("static"+path+".ejs",{user:{role:"association"}});
+    html = await ejs.renderFile("static"+path+".ejs",{user:{role:"association",name:"KEEER",reports:[{title:"Report Title", link:"/home"}],applications:[{title:"Application Title", link:"/home"}]}});
   } catch(e) {
-    html = "Error: "+e;
+    html = "<textarea>Error: "+e.stack+"</textarea>";
   } finally {
     resp.writeHead(200,{"Content-Type":"text/html; charset=utf8"});
     resp.end(html);
