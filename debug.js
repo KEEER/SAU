@@ -12,8 +12,18 @@ const server = http.createServer(async (req, resp) => {
     resp.end(fs.readFileSync("static/index.html"));
     return;
   }
+  if(path == "/login"){
+    resp.writeHead(302,{"Location":"/home"});
+    resp.end();
+    return;
+  }
+  if(path == "/logout"){
+    resp.writeHead(302,{"Location":"/"});
+    resp.end();
+    return;
+  }
   if(path == "/img/github.svg") {
-    resp.writeHead(200,{"Content-Type":"image/svg"});
+    resp.writeHead(200,{"Content-Type":"image/svg+xml"});
     resp.end(fs.readFileSync("static/img/github.svg"));
     return;
   }
@@ -23,10 +33,11 @@ const server = http.createServer(async (req, resp) => {
     return;
   }
   let html;
+  const isOfficer = url.parse(req.url, true).query.isOfficer!==undefined;
   try{
     html = await ejs.renderFile("static"+path+".ejs",{
       user:{
-        role:"association",
+        role:isOfficer?"officer":"association",
         name:"KEEER",
         reports:[
           {
@@ -52,6 +63,9 @@ const server = http.createServer(async (req, resp) => {
         checkedsize:"large",
         score:200
       }
+    },
+    {
+      root:__dirname+"/static/"
     }
   );
   } catch(e) {

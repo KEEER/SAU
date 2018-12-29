@@ -1,18 +1,11 @@
 <!DOCTYPE html>
 <html lang="zh-CN" dir="ltr">
   <head>
-    <meta charset="utf-8">
-    <title>新建申请 | 人大附中社团管理平台</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#" />
-    <link rel="shortcut icon" href="/favicon.ico">
-    <link rel="stylesheet" type="text/css" href="https://unpkg.com/material-components-web@latest/dist/material-components-web.min.css">
-    <link rel="stylesheet" href="https://fonts.loli.net/icon?family=Material+Icons">
-    <link rel="stylesheet" type="text/css" href="/styles.css">
+    <%- include("/partial/header",{title:"新建申请 | 人大附中社团管理平台"}) %>
   </head>
   <body>
-    <%- include("../partial/drawer",{user:user}) %>
-    <%- include("../partial/appbar",{title:"新建申请"}) %>
+    <%- include("/partial/drawer",{user:user}) %>
+    <%- include("/partial/appbar",{title:"新建申请"}) %>
     <div id="wrapper" class="mdc-top-app-bar--fixed-adjust">
       <div id="content-in">
         <div id="content">
@@ -21,11 +14,11 @@
                case "association":%>
             <p>社团：<%= user.name %></p>
             <form action="/report/new" method="post">
-            <%- include("../mdc/input",{label:"标题",name:"title",required:true}) %>
-            <%- include("../mdc/input",{label:"开始时间",name:"begin",required:true}) %>
-            <%- include("../mdc/input",{label:"持续时间",name:"time",required:true}) %>
-            <%- include("../mdc/select",{label:"类型",name:"type",required:true,options:[{label:"教室申请",value:"room"},{label:"宣传申请",value:"ad"},{label:"活动申请",value:"activity"}]}) %>
-            <%- include("../mdc/textarea",{label:"内容",name:"description",required:true}) %>
+            <%- include("/mdc/input",{label:"标题",name:"title",required:true}) %>
+            <%- include("/mdc/input",{label:"开始时间",name:"begin",required:true}) %>
+            <%- include("/mdc/input",{label:"持续时间",name:"time",required:true}) %>
+            <%- include("/mdc/select",{label:"类型",name:"type",required:true,options:[{label:"教室申请",value:"room"},{label:"宣传申请",value:"ad"},{label:"超大型活动申请",value:"xl-activity"},{label:"校外活动申请",value:"outer-activity"}]}) %>
+            <%- include("/mdc/textarea",{label:"内容",name:"description",required:true}) %>
             <hr />
             <p>附件</p>
             <button id="add-file" class="mdc-button mdc-button--raised" data-mdc-auto-init="MDCRipple" onclick="document.getElementById('file').click();event.preventDefault();">添加文件</button>
@@ -43,10 +36,6 @@
         </div>
       </div>
     </div>
-    <script src="https://unpkg.com/material-components-web@latest/dist/material-components-web.min.js"></script>
-    <script>mdc.autoInit();</script>
-    <!--div style="display:none;">
-      <script src="https://s23.cnzz.com/z_stat.php?id=1275351229&web_id=1275351229" language="JavaScript"></script>
-    </div-->
+    <%- include("/partial/footer") %>
   </body>
 </html>
