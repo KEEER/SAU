@@ -9,7 +9,7 @@ const server = http.createServer(async (req, resp) => {
   const path = url.parse(req.url).pathname;
   if(path == "/") {
     resp.writeHead(200,{"Content-Type":"text/html; charset=utf8"});
-    resp.end(fs.readFileSync("static/index.html"));
+    resp.end(fs.readFileSync("source/index.html"));
     return;
   }
   if(path == "/login"){
@@ -24,18 +24,18 @@ const server = http.createServer(async (req, resp) => {
   }
   if(path == "/img/github.svg") {
     resp.writeHead(200,{"Content-Type":"image/svg+xml"});
-    resp.end(fs.readFileSync("static/img/github.svg"));
+    resp.end(fs.readFileSync("source/img/github.svg"));
     return;
   }
   if(path == "/styles.css") {
     resp.writeHead(200,{"Content-Type":"text/css"});
-    resp.end(fs.readFileSync("static/styles.css"));
+    resp.end(fs.readFileSync("source/styles.css"));
     return;
   }
   let html;
   const isOfficer = url.parse(req.url, true).query.isOfficer!==undefined;
   try{
-    html = await ejs.renderFile("static"+path+".ejs",{
+    html = await ejs.renderFile("source"+path+".ejs",{
       user:{
         role:isOfficer?"officer":"association",
         name:"KEEER",
@@ -94,7 +94,7 @@ const server = http.createServer(async (req, resp) => {
       ]
     },
     {
-      root:__dirname+"/static/"
+      root:__dirname+"/source/"
     }
   );
   } catch(e) {
