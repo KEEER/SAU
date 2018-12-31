@@ -139,7 +139,7 @@ class User{
     if(!obj.salt) {
       obj.salt = User.generateSalt();
     }
-    obj.passwd = User.hash(obj.passwd, obj.salt);
+    obj.passwd = User.hash(obj.passwd, obj.salt).toString();
     return User.add(obj);
   }
 
