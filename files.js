@@ -7,6 +7,7 @@ const fs = require('fs');
 const consts = require('./consts').files;
 
 const writeFile = promisify(fs.writeFile);
+const unlink = promisify(fs.unlink);
 let _data;
 
 const getid = () => {
@@ -31,6 +32,19 @@ module.exports = async (req, resp) => {
       resp.writeHead(404);
       resp.end("404 Not Found");
     }
+    if(req.method === "DELETE") {
+      if(session.get("userid") !== obj.userid) {
+        resp.writeHead(401);
+        resp.end("401 Unauthorized");
+        return;
+      }
+      delete _data[id];
+      await writeFile(consts.file, JSON.stringify(_data));
+      await unlink(consts.dir + id + consts.ext);
+      resp.writeHead(200);
+      resp.end("OK");
+      return;
+    }
     const {name, length} = obj;
     resp.writeHead(200, {
       "Content-Type":"application/octet-stream",
@@ -53,7 +67,8 @@ module.exports = async (req, resp) => {
     const id = getid();
     _data[id] = {
       name,
-      length: data.length
+      length:data.length,
+      userid:session.get("userid")
     };
     await writeFile(consts.dir + id + consts.ext, data);
     await writeFile(consts.file, JSON.stringify(_data));

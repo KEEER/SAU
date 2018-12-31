@@ -4,10 +4,15 @@ const url = require('url');
 const ejs = require('ejs');
 const mime = require('mime');
 const etag = require('etag');
+const User = require('./user');
+const utils = require('./utils');
 const Session = require('./session');
 const consts = require('./consts');
 const files = require('./files');
 const {vurl} = require("@alan-liang/utils");
+
+ejs.root = consts.http.ejsRoot;
+ejs.rmWhitespace = true;
 
 //serve static files
 const createCallback = buffer => {
@@ -50,6 +55,17 @@ function redirect(resp, path) {
   resp.end();
 }
 
+function htmlHead(resp) {
+  resp.writeHead(200, {"Content-Type":"text/html; charset=utf8"});
+}
+
+function renderFile(path, obj) {
+  return ejs.renderFile(consts.http.ejsRoot + path, obj, {
+    root:consts.http.ejsRoot,
+    rmWhitespace:true
+  });
+}
+
 //index page
 vurl.add({
   path:"/",
@@ -67,12 +83,19 @@ vurl.add({
 //serve login requests
 vurl.add({
   path:"/login",
-  func:(req, resp) => {
-    // TODO:
+  func:async (req, resp) => {
     const session = new Session(req, resp);
-    const uid = "23336666";
+    const info = await utils.postData(req, true);
     if(session.get("userid")) {
       redirect(resp, "/home");
+      return;
+    }
+    if(!info || !info.userid || !info.passwd) {
+      redirect(resp, "/");
+    }
+    const uid = info.userid;
+    if(!User.has(uid) || !(new User(uid)).isValidPasswd(info.passwd)) {
+      redirect(resp, "/?invalid");
       return;
     }
     session.set("userid",uid);
@@ -84,7 +107,8 @@ vurl.add({
 vurl.add({
   path:"/logout",
   func:(req, resp) => {
-    // TODO:
+    new Session(req, resp).remove();
+    redirect(resp, "/");
   }
 });
 
@@ -110,6 +134,24 @@ vurl.add({
 vurl.add({
   regexp:/^\/file\//i,
   func:files
+});
+
+//ejs files
+consts.http.ejsFiles.forEach(file => {
+  vurl.add({
+    "path":"/" + file,
+    func:async (req, resp) => {
+      const session = new Session(req, resp);
+      const uid = session.get("userid");
+      if(!uid) {
+        redirect(resp, "/");
+        return;
+      }
+      const user = new User(uid);
+      htmlHead(resp);
+      resp.end(await renderFile(`/${file}.ejs`,{user}));
+    }
+  });
 });
 
 //start server

@@ -15,7 +15,7 @@ class Session{
     const sessid = this.id = cookie.parse(cookies)[consts.name];
     if(!Session.hasId(sessid)) {
       const id =this.id = Session.createId();
-      resp.setHeader("Set-Cookie",cookie.serialize(consts.name, id));
+      resp.setHeader("Set-Cookie",cookie.serialize(consts.name, id,{path:"/"}));
     }
   }
 

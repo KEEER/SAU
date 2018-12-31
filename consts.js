@@ -10,6 +10,15 @@ const consts = {
     staticDirs:[
       "img/"
     ],
+    ejsRoot:__dirname+"/source/",
+    ejsFiles:[
+      "home",
+      "report/new",
+      "application/new",
+      "message/new",
+      "settings",
+      "messages"
+    ],
     errorMessage:{
       501:"The server has encountered some strange error. Maybe a monster ate the server?",
       404:"404. The page wasn't found by any means."

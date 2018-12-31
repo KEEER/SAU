@@ -27,11 +27,14 @@ fileinput.onchange = function(){
     var file = files[i];
     // TODO: UI
     (function(file){
-      var li = document.createElement("a");
+      var li = document.createElement("li");
       li.className = "mdc-list-item";
-      var span = document.createElement("span");
+      var span = document.createElement("a");
       span.className = "mdc-list-item__text";
       span.style.width = "100%";
+      span.style.color = "inherit";
+      span.style.textDecoration = "none";
+      span.setAttribute("target", "_blank");
       var name = document.createElement("span");
       name.className = "mdc-list-item__primary-text";
       name.innerText = file.name + " " + size(file.size);
@@ -53,7 +56,11 @@ fileinput.onchange = function(){
           uploadList.removeChild(li);
           return;
         }
-        // TODO: 
+        uploadList.removeChild(li);
+        fetch("/file/" + li._id,{
+          method:"DELETE"
+        });
+        uploadInput.value = uploadInput.value.replace("|"+li._id, "");
       };
       li.appendChild(span);
       li.appendChild(del);
@@ -89,9 +96,10 @@ fileinput.onchange = function(){
           desc.innerHTML = '<span class="mdc-theme--error">网络错误</span>';
           return;
         } else {
-          li.href = "/file/" + res.id;
+          span.href = "/file/" + resp.id;
+          li._id = resp.id;
           desc.innerHTML = "上传成功";
-          uploadInput.value += ("|" + res.id);
+          uploadInput.value += ("|" + resp.id);
           li.ok = true;
         }
       };

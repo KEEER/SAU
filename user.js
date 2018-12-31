@@ -23,6 +23,23 @@ class User{
     update();
   }
 
+  // TODO: score, reports, apps & msgs
+  get score() {
+    return 512;
+  }
+
+  get reports() {
+    return [];
+  }
+
+  get applications() {
+    return [];
+  }
+
+  get messages() {
+    return [];
+  }
+
   get name() {
     return this.get("name");
   }
@@ -50,7 +67,7 @@ class User{
   isValidPasswd(passwd) {
     return crypto.timingSafeEqual(
       User.hash(passwd, this.salt),
-      User.hash(this.passwd, this.salt)
+      Buffer.from(this.passwd)
     );
   }
 
@@ -106,7 +123,7 @@ class User{
   static hash(passwd, salt) {
     const hash = crypto.createHash(consts.hashMethod);
     hash.update(passwd + salt);
-    return hash.digest(consts.encoding);
+    return Buffer.from(hash.digest(consts.encoding));
   }
 
   static add(obj) {
