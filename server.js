@@ -6,6 +6,7 @@ const mime = require('mime');
 const etag = require('etag');
 const Session = require('./session');
 const consts = require('./consts');
+const files = require('./files');
 const {vurl} = require("@alan-liang/utils");
 
 //serve static files
@@ -85,6 +86,30 @@ vurl.add({
   func:(req, resp) => {
     // TODO:
   }
+});
+
+//file uploading
+vurl.add({
+  regexp:/^\/file\/new\//i,
+  func:async (req, resp) => {
+    let id;
+    try {
+      id = await files(req);
+    } catch(e) {
+      console.error(e);
+      resp.writeHead(400, {"Content-Type":"application/json"});
+      resp.end('{"code":400,"text":"Bad Request"}');
+      return;
+    }
+    resp.writeHead(200, {"Content-Type":"application/json"});
+    resp.end(`{"code":200,"text":"OK","id":"${id}"}`);
+  }
+});
+
+//file downloading
+vurl.add({
+  regexp:/^\/file\//i,
+  func:files
 });
 
 //start server

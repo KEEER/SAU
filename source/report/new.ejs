@@ -23,7 +23,8 @@
             <hr />
             <p>附件</p>
             <button id="add-file" class="mdc-button mdc-button--raised" data-mdc-auto-init="MDCRipple" onclick="document.getElementById('file').click();event.preventDefault();">添加文件</button>
-            <input type="file" id="file" hidden />
+            <input type="file" id="file" multiple hidden />
+            <%- include("/partial/upload",{id:"file"}) %>
             <hr />
             <p>提交后不可以删除或修改，请谨慎提交。</p>
             <input type="submit" class="mdc-button mdc-button--raised" data-mdc-auto-init="MDCRipple" value="提交" />

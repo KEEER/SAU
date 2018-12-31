@@ -1,0 +1,35 @@
+<div id="upload"></div>
+<input type="hidden" id="upload-input" name="<%- id %>" />
+<script>
+var uploadDiv = document.getElementById("upload");
+var uploadInput = document.getElementById("upload-input");
+function post(url, data, cb){
+  cb = cb || function(){};
+  fetch(url, {body:data, method:'POST'})
+    .then(function(resp){return resp.json();})
+    .then(function(resp){cb(null,resp);})
+    .catch(cb);
+}
+var fileinput = document.getElementById("<%- id %>");
+fileinput.onchange = function(){
+  var files = fileinput.files;
+  for(var i = 0; i < files.length; i++) {
+    var file = files[i];
+    // TODO: UI
+    (function(file){
+      if(file.size > 32 * 1024 * 1024) { //32 MiB. also change consts.js
+        console.error("File " + file.name + " exceeded size limit");
+        return;
+      }
+      post("/file/new/"+file.name,file,function(err,res){
+        if(err) console.error(err);
+        else if(res.code !== 200) console.error(res);
+        else {
+          console.log("Uploaded file " + file.name + " id = " + res.id);
+          uploadInput.value += ("|" + res.id);
+        }
+      });
+    })(file);
+  }
+};
+</script>

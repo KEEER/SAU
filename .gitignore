@@ -6,6 +6,11 @@ npm-debug.log*
 
 #storage
 session.json
+files/*.file
+files.json
+reports.json
+messages.json
+applications.json
 
 # Runtime data
 pids
@@ -30,4 +35,3 @@ build/Release
 # Dependency directory
 # https://docs.npmjs.com/misc/faq#should-i-check-my-node-modules-folder-into-git
 node_modules
-
