@@ -141,6 +141,11 @@ consts.http.ejsFiles.forEach(file => {
   vurl.add({
     "path":"/" + file,
     func:async (req, resp) => {
+      if(req.method !== "GET") {
+        // TODO:
+        htmlHead(resp);
+        resp.end("TODO");
+      }
       const session = new Session(req, resp);
       const uid = session.get("userid");
       if(!uid) {

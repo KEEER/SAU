@@ -3,13 +3,6 @@
 <script>
 var uploadList = document.getElementById("upload");
 var uploadInput = document.getElementById("upload-input");
-function post(url, data, cb) {
-  cb = cb || function(){};
-  fetch(url, {body:data, method:'POST'})
-    .then(function(resp){return resp.json();})
-    .then(function(resp){cb(null,resp);})
-    .catch(cb);
-}
 function size(size) {
   if(size == 0) return "0B";
   var sizes = "BKMGT".split("");
@@ -75,9 +68,10 @@ fileinput.onchange = function(){
       }
       var xhr = new XMLHttpRequest();
       xhr.open("POST", "/file/new/" + file.name, true);
-      xhr.onprogress = function(e) {
+      xhr.upload.onprogress = xhr.onprogress = function(e) {
         var _progress = e.loaded / e.total;
         progress.progress = _progress;
+        console.log(_progress);
         return;
       };
       xhr.withCredentials = true;
