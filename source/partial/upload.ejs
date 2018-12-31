@@ -1,4 +1,4 @@
-<ul id="upload" class="mdc-list mdc-list--two-line mdc-list--non-interactive" data-mdc-auto-init="MDCList"></ul>
+<ul id="upload" class="mdc-list mdc-list--two-line" data-mdc-auto-init="MDCList"></ul>
 <input type="hidden" id="upload-input" name="<%- id %>" />
 <script>
 var uploadList = document.getElementById("upload");
@@ -27,7 +27,7 @@ fileinput.onchange = function(){
     var file = files[i];
     // TODO: UI
     (function(file){
-      var li = document.createElement("li");
+      var li = document.createElement("a");
       li.className = "mdc-list-item";
       var span = document.createElement("span");
       span.className = "mdc-list-item__text";
@@ -40,23 +40,64 @@ fileinput.onchange = function(){
       desc.innerHTML = '<div role="progressbar" class="mdc-linear-progress"><div class="mdc-linear-progress__bar mdc-linear-progress__primary-bar"><span class="mdc-linear-progress__bar-inner"></span></div><div class="mdc-linear-progress__bar mdc-linear-progress__secondary-bar"><span class="mdc-linear-progress__bar-inner"></span></div></div>';
       var progress = new mdc.linearProgress.MDCLinearProgress(desc.firstElementChild);
       progress.progress = 0;
+      var del = document.createElement("i");
+      del.className = "mdc-icon-button material-icons";
+      del.innerHTML = "delete";
+      del.onclick = function() {
+        if(!li.ok) {
+          uploadList.removeChild(li);
+          return;
+        }
+        if(li.ok === "partial") {
+          li.xhr.abort();
+          uploadList.removeChild(li);
+          return;
+        }
+        // TODO: 
+      };
       li.appendChild(span);
+      li.appendChild(del);
       span.appendChild(name);
       span.appendChild(desc);
       uploadList.appendChild(li);
 
       if(file.size > 32 * 1024 * 1024) { //32 MiB. also change consts.js
-        console.error("File " + file.name + " exceeded size limit");
+        desc.innerHTML = '<span class="mdc-theme--error">文件大小超限</span>';
+        li.ok = false;
         return;
       }
-      post("/file/new/"+file.name,file,function(err,res){
-        if(err) console.error(err);
-        else if(res.code !== 200) console.error(res);
-        else {
-          console.log("Uploaded file " + file.name + " id = " + res.id);
-          uploadInput.value += ("|" + res.id);
+      var xhr = new XMLHttpRequest();
+      xhr.open("POST", "/file/new/" + file.name, true);
+      xhr.onprogress = function(e) {
+        var _progress = e.loaded / e.total;
+        progress.progress = _progress;
+        return;
+      };
+      xhr.withCredentials = true;
+      xhr.onreadystatechange = function() {
+        if(xhr.readyState !== 4) return;
+        var resp = xhr.response;
+        try {
+          resp = JSON.parse(resp);
+        } catch(e) {
+          console.error(e);
+          li.ok = false;
+          desc.innerHTML = '<span class="mdc-theme--error">网络错误</span>';
         }
-      });
+        if(resp.code !== 200) {
+          console.error(resp);
+          desc.innerHTML = '<span class="mdc-theme--error">网络错误</span>';
+          return;
+        } else {
+          li.href = "/file/" + res.id;
+          desc.innerHTML = "上传成功";
+          uploadInput.value += ("|" + res.id);
+          li.ok = true;
+        }
+      };
+      xhr.send(file);
+      li.ok = "partial";
+      li.xhr = xhr;
     })(file);
   }
 };
