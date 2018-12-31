@@ -1,14 +1,24 @@
-<div id="upload"></div>
+<ul id="upload" class="mdc-list mdc-list--two-line mdc-list--non-interactive" data-mdc-auto-init="MDCList"></ul>
 <input type="hidden" id="upload-input" name="<%- id %>" />
 <script>
-var uploadDiv = document.getElementById("upload");
+var uploadList = document.getElementById("upload");
 var uploadInput = document.getElementById("upload-input");
-function post(url, data, cb){
+function post(url, data, cb) {
   cb = cb || function(){};
   fetch(url, {body:data, method:'POST'})
     .then(function(resp){return resp.json();})
     .then(function(resp){cb(null,resp);})
     .catch(cb);
+}
+function size(size) {
+  if(size == 0) return "0B";
+  var sizes = "BKMGT".split("");
+  var i = 0;
+  while(size >= 1) {
+    size = size / 1024;
+    i++;
+  }
+  return (size * 1024).toFixed(2) + sizes[i-1];
 }
 var fileinput = document.getElementById("<%- id %>");
 fileinput.onchange = function(){
@@ -17,6 +27,24 @@ fileinput.onchange = function(){
     var file = files[i];
     // TODO: UI
     (function(file){
+      var li = document.createElement("li");
+      li.className = "mdc-list-item";
+      var span = document.createElement("span");
+      span.className = "mdc-list-item__text";
+      span.style.width = "100%";
+      var name = document.createElement("span");
+      name.className = "mdc-list-item__primary-text";
+      name.innerText = file.name + " " + size(file.size);
+      var desc = document.createElement("span");
+      desc.className = "mdc-list-item__secondary-text";
+      desc.innerHTML = '<div role="progressbar" class="mdc-linear-progress"><div class="mdc-linear-progress__bar mdc-linear-progress__primary-bar"><span class="mdc-linear-progress__bar-inner"></span></div><div class="mdc-linear-progress__bar mdc-linear-progress__secondary-bar"><span class="mdc-linear-progress__bar-inner"></span></div></div>';
+      var progress = new mdc.linearProgress.MDCLinearProgress(desc.firstElementChild);
+      progress.progress = 0;
+      li.appendChild(span);
+      span.appendChild(name);
+      span.appendChild(desc);
+      uploadList.appendChild(li);
+
       if(file.size > 32 * 1024 * 1024) { //32 MiB. also change consts.js
         console.error("File " + file.name + " exceeded size limit");
         return;
