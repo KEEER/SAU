@@ -1,0 +1,31 @@
+<ul id="upload" class="mdc-list mdc-list--two-line content" data-mdc-auto-init="MDCList">
+<%
+files = files.split("|");
+const File = require("./files");
+files.shift();
+function size(size) {
+  if(size == 0) return "0B";
+  var sizes = "BKMGT".split("");
+  var i = 0;
+  while(size >= 1) {
+    size = size / 1024;
+    i++;
+  }
+  return (size * 1024).toFixed(2) + sizes[i-1];
+}
+if(files.length === 0) { %>
+  无附件
+<% }
+files.forEach(file => {
+  const id = file;
+  file = File(file); %>
+  <a class="mdc-list-item" target="_blank" href="/file/<%= id %>" data-mdc-auto-init="MDCRipple">
+    <span class="mdc-list-item__text" style="width: 100%;">
+      <span class="mdc-list-item__primary-text"><%= decodeURIComponent(file.name) %></span>
+      <span class="mdc-list-item__secondary-text"><%= size(file.length) %></span>
+    </span>
+  </a>
+  <%
+});
+%>
+</ul>

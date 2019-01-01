@@ -17,6 +17,7 @@ class Session{
       const id =this.id = Session.createId();
       resp.setHeader("Set-Cookie",cookie.serialize(consts.name, id,{path:"/"}));
     }
+    this.set("created",Date.now());
   }
 
   set(k,v) {

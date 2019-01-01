@@ -1,7 +1,7 @@
 <% let isReport = typeof report !== typeof void(0);
 let isApp = typeof application !== typeof void(0);
 let isMessage = typeof message !== typeof void(0);
-function score(size){
+function scoreOf(size){
   switch(size){
     case "small":
     return 100;
@@ -33,7 +33,7 @@ switch(user.role) {
   case "admin":
   let value;
   if(isReport){
-    value = report.score || score(report.checkedsize || report.size);
+    value = report.score || scoreOf(report.checkedsize || report.size);
   }
   if(isApp) {
     value = application.score || 0;

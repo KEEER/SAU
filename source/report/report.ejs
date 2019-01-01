@@ -35,7 +35,7 @@
                 <tr><td class="right">持续时间</td><td class="left"><%= report.time %></td></tr>
                 <tr><td class="right">地点</td><td class="left"><%= report.place %></td></tr>
                 <tr><td class="right">内容</td><td class="content left"><%- escapeFn(report.description).replace(/\n/g,"<br />") %></td></tr>
-                <tr><td class="right">附件</td><td class="left">TODO</td></tr>
+                <tr><td class="right">附件</td><td class="left"><%- include("/partial/files",{files:report.files}) %></td></tr>
                 <tr><td class="right">认定活动规模</td><td class="left"><%- include("/partial/checkedsize",{report,user,size}) %></td></tr>
                 <tr><td class="right">评分</td><td class="left"><%- include("/partial/score",{report,user}) %></td></tr>
               </table>

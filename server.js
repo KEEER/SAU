@@ -61,6 +61,7 @@ function htmlHead(resp, status) {
 }
 
 function renderFile(path, obj) {
+  obj.require = require;
   return ejs.renderFile(consts.http.ejsRoot + path, obj, {
     root:consts.http.ejsRoot,
     rmWhitespace:true
@@ -232,11 +233,6 @@ vurl.add({
   regexp:/^\/report\//i,
   func:async (req, resp) => {
     const id = url.parse(req.url).pathname.split("/").pop().replace(/"/g,"");
-    if(req.method !== "GET") {
-      // TODO: update
-      redirect(resp, "/home");
-      return;
-    }
     const session = new Session(req, resp);
     const uid = session.get("userid");
     if(!uid) {
@@ -250,6 +246,22 @@ vurl.add({
       return;
     }
     const report = new Report(id);
+    if(req.method !== "GET") {
+      if(user.role === "association") {
+        htmlHead(resp, 403);
+        resp.end("403 Forbidden");
+        return;
+      }
+      const data = await utils.postData(req, true);
+      if(!data || !data.score || !data.size) {
+        htmlHead(resp, 400);
+        resp.end("400 Bad Request");
+        return;
+      }
+      report.score = parseInt(data.score);
+      report.checkedsize = data.size;
+      // TODO: send update message
+    }
     htmlHead(resp);
     resp.end(await renderFile("/report/report.ejs", {
       user,
