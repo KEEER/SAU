@@ -196,7 +196,6 @@ const ejsHandlers = {
       redirect(resp, "/report/new?invalid");
       return;
     }
-    data.name = user.name;
     data.userid = user.id;
     const report = Report.create(data);
     redirect(resp, "/report/" + report.id);

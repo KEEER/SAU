@@ -85,7 +85,56 @@
               </script>
             <% break;
                case "officer":%>
-            officer
+
+               <div class="mdc-tab-bar" data-mdc-auto-init="MDCTabBar" role="tablist">
+                <div class="mdc-tab-scroller">
+                  <div class="mdc-tab-scroller__scroll-area">
+                    <div class="mdc-tab-scroller__scroll-content">
+                      <button id="report-tab" class="mdc-tab mdc-tab--active" role="tab" aria-selected="true" tabindex="0">
+                        <span class="mdc-tab__content">
+                          <span class="mdc-tab__text-label">活动报告</span>
+                        </span>
+                        <span class="mdc-tab-indicator mdc-tab-indicator--active">
+                          <span class="mdc-tab-indicator__content mdc-tab-indicator__content--underline"></span>
+                        </span>
+                        <span class="mdc-tab__ripple"></span>
+                      </button>
+                      <button id="application-tab" class="mdc-tab" role="tab" aria-selected="true" tabindex="1">
+                        <span class="mdc-tab__content">
+                          <span class="mdc-tab__text-label">申请</span>
+                        </span>
+                        <span class="mdc-tab-indicator">
+                          <span class="mdc-tab-indicator__content mdc-tab-indicator__content--underline"></span>
+                        </span>
+                        <span class="mdc-tab__ripple"></span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div id="reports" class="tab current">
+                <% user.reports.forEach(report => { %>
+                  <%- include("/partial/report-preview",{report:report}); %>
+                <% }); %>
+              </div>
+              <div id="applications" class="tab">
+                <% user.applications.forEach(app => { %>
+                  <%- include("/partial/application-preview",{application:app}); %>
+                <% }); %>
+              </div>
+              <script>
+              var $=function(a){return document.querySelector(a);};
+              var reports=$("#reports");
+              var applications=$("#applications");
+              $("#report-tab").onclick=function(){
+                reports.classList.add("current");
+                applications.classList.remove("current");
+              };
+              $("#application-tab").onclick=function(){
+                reports.classList.remove("current");
+                applications.classList.add("current");
+              };
+              </script>
             <% break;
                default:%>
             unknown

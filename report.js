@@ -1,5 +1,6 @@
 const fs = require('fs');
 const crypto = require('crypto');
+const User = require('./user');
 const consts = require('./consts').report;
 
 let _data;
@@ -23,12 +24,12 @@ class Report{
     update();
   }
 
-  get name() {
-    return this.get("name");
+  get user() {
+    return new User(this.userid);
   }
 
-  set name(name) {
-    this.set("name", name);
+  get name() {
+    return this.user.name;
   }
 
   get size() {
@@ -158,6 +159,25 @@ class Report{
       if(Report.data[i].userid === id) {
         reports.push(new Report(i));
       }
+    }
+    return reports;
+  }
+
+  static getReportsByType(type) {
+    const reports = [];
+    for(let i in Report.data) {
+      const report = new Report(i);
+      if(report.user.type === type) {
+        reports.push(report);
+      }
+    }
+    return reports;
+  }
+
+  static get all() {
+    const reports = [];
+    for(let i in Report.data) {
+      reports.push(new Report(i));
     }
     return reports;
   }

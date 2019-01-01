@@ -1,6 +1,5 @@
 const fs = require('fs');
 const crypto = require('crypto');
-const Report = require('./report');
 const consts = require('./consts').user;
 
 let _data;
@@ -26,11 +25,30 @@ class User{
 
   // TODO: score, reports, apps & msgs
   get score() {
-    return 512;
+    let score = 0;
+    this.reports.forEach(el => {
+      score += (el.score || 0);
+    });
+    this.messages.forEach(el => {
+      score += (el.score || 0);
+    });
+    this.applications.forEach(el => {
+      score += (el.score || 0);
+    });
+    return score;
   }
 
   get reports() {
-    return Report.getReportsById(this.id);
+    switch(this.role) {
+      case "association":
+      return Report.getReportsById(this.id);
+
+      case "officer":
+      return Report.getReportsByType(this.type);
+
+      case "admin":
+      return Report.all;
+    }
   }
 
   get applications() {
@@ -171,3 +189,7 @@ try{
 }
 
 module.exports = User;
+
+//To avoid Report require('./user') only to get {},
+//we need to import ./report at last
+const Report = require('./report');
