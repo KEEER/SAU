@@ -39,5 +39,13 @@
       </div>
     </div>
     <%- include("/partial/footer") %>
+    <script>
+    if(location.href.indexOf("invalid") > -1) {
+      snackbar.show({
+        message:"活动填写不完整",
+        timeout:5000
+      });
+    }
+    </script>
   </body>
 </html>

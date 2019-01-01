@@ -1,5 +1,18 @@
+<div class="mdc-snackbar"
+     aria-live="assertive"
+     aria-atomic="true"
+     aria-hidden="true"
+     data-mdc-auto-init="MDCSnackbar">
+  <div class="mdc-snackbar__text"></div>
+  <div class="mdc-snackbar__action-wrapper">
+    <button type="button" class="mdc-snackbar__action-button"></button>
+  </div>
+</div>
 <script src="https://unpkg.com/material-components-web@latest/dist/material-components-web.min.js"></script>
 <script>mdc.autoInit();</script>
+<script>
+window.snackbar = document.querySelector(".mdc-snackbar").MDCSnackbar;
+</script>
 <!--div style="display:none;">
   <script src="https://s23.cnzz.com/z_stat.php?id=1275351229&web_id=1275351229" language="JavaScript"></script>
 </div-->

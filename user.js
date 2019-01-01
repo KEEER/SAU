@@ -1,5 +1,6 @@
 const fs = require('fs');
 const crypto = require('crypto');
+const Report = require('./report');
 const consts = require('./consts').user;
 
 let _data;
@@ -29,7 +30,7 @@ class User{
   }
 
   get reports() {
-    return [];
+    return Report.getReportsById(this.id);
   }
 
   get applications() {
@@ -61,7 +62,7 @@ class User{
   }
 
   set passwd(passwd) {
-    this.set("passwd", passwd);
+    this.set("passwd", passwd.toString());
   }
 
   isValidPasswd(passwd) {
@@ -72,7 +73,7 @@ class User{
   }
 
   generateSalt() {
-    this.salt = User.generateSalt();
+    return this.salt = User.generateSalt();
   }
 
   get role() {

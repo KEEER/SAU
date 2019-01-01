@@ -11,15 +11,41 @@
         <div id="content">
           <div class="mdc-card">
             <form action="/settings" method="post">
-              <%- include("/mdc/input",{label:"原密码",name:"original",type:"password",icon:"lock_open",required:true}) %>
-              <%- include("/mdc/input",{label:"新密码",name:"new",type:"password",icon:"lock",required:true}) %>
-              <%- include("/mdc/input",{label:"重复新密码",name:"repeat",type:"password",icon:"repeat",required:true}) %>
-              <input type="submit" class="mdc-button mdc-button--raised" data-mdc-auto-init="MDCRipple" value="修改密码" />
+              <%- include("/mdc/input",{label:"原密码",name:"current",type:"password",icon:"lock_open",required:true,autocomplete:"current-password"}) %>
+              <%- include("/mdc/input",{label:"新密码",name:"new",type:"password",icon:"lock",required:true,autocomplete:"new-password"}) %>
+              <%- include("/mdc/input",{label:"重复新密码",name:"repeat",type:"password",icon:"repeat",required:true,autocomplete:"new-password"}) %>
+              <input type="submit" class="mdc-button mdc-button--raised" data-mdc-auto-init="MDCRipple" value="修改密码" disabled />
+              <script>
+              var $ = function(a){return document.querySelector(a);};
+              function onchange() {
+                if($("input[name=new]").value === $("input[name=repeat]").value) {
+                  $("input[type=submit]").removeAttribute("disabled");
+                } else {
+                  $("input[type=submit]").setAttribute("disabled","disabled");
+                }
+              }
+              $("input[name=new]").addEventListener("keyup",onchange);
+              $("input[name=repeat]").addEventListener("keyup",onchange);
+              </script>
             </form>
           </div>
         </div>
       </div>
     </div>
     <%- include("/partial/footer") %>
+    <script>
+    if(location.href.indexOf("ok") > -1) {
+      snackbar.show({
+        message:"修改密码成功",
+        timeout:5000
+      });
+    }
+    if(location.href.indexOf("invalid") > -1) {
+      snackbar.show({
+        message:"原密码错误",
+        timeout:5000
+      });
+    }
+    </script>
   </body>
 </html>

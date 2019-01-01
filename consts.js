@@ -71,7 +71,8 @@ const consts = {
     }
   },
   report:{
-    file:"reports.json"
+    file:"reports.json",
+    length:16
   },
   files:{
     dir:__dirname + "/files/",

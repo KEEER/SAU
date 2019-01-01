@@ -9,6 +9,7 @@ const utils = require('./utils');
 const Session = require('./session');
 const consts = require('./consts');
 const files = require('./files');
+const Report = require('./report');
 const {vurl} = require("@alan-liang/utils");
 
 ejs.root = consts.http.ejsRoot;
@@ -55,8 +56,8 @@ function redirect(resp, path) {
   resp.end();
 }
 
-function htmlHead(resp) {
-  resp.writeHead(200, {"Content-Type":"text/html; charset=utf8"});
+function htmlHead(resp, status) {
+  resp.writeHead(status || 200, {"Content-Type":"text/html; charset=utf8"});
 }
 
 function renderFile(path, obj) {
@@ -136,15 +137,82 @@ vurl.add({
   func:files
 });
 
+const ejsHandlers = {
+  "settings":async (req, resp) => {
+    const session = new Session(req, resp);
+    const uid = session.get("userid");
+    if(!uid) {
+      redirect(resp, "/");
+      return;
+    }
+    let passwd;
+    try {
+      passwd = await utils.postData(req, true);
+    } catch(e) {
+      redirect(resp, "/settings");
+      return;
+    }
+    const user = new User(uid);
+    console.log(passwd);
+    if(!user.isValidPasswd(passwd.current)) {
+      redirect(resp, "/settings?invalid");
+      return;
+    }
+    if(passwd.new !== passwd.repeat || !passwd.new) {
+      redirect(resp, "/settings");
+      return;
+    }
+    user.passwd = User.hash(passwd.new, user.generateSalt());
+    redirect(resp, "/settings?ok");
+  },
+  "report/new":async (req, resp) => {
+    const session = new Session(req, resp);
+    const uid = session.get("userid");
+    if(!uid) {
+      redirect(resp, "/");
+      return;
+    }
+    const user = new User(uid);
+    let data;
+    try {
+      data = await utils.postData(req, true);
+    } catch(e) {
+      redirect(resp, "/report/new?invalid");
+      return;
+    }
+    let valid = true;
+    [
+      "title",
+      "size",
+      "begin",
+      "time",
+      "place",
+      "description"
+    ].forEach(el => {
+      if(!data[el]) valid = false;
+    });
+    if(!valid) {
+      redirect(resp, "/report/new?invalid");
+      return;
+    }
+    data.name = user.name;
+    data.userid = user.id;
+    const report = Report.create(data);
+    redirect(resp, "/report/" + report.id);
+  }
+};
+
 //ejs files
 consts.http.ejsFiles.forEach(file => {
   vurl.add({
     "path":"/" + file,
     func:async (req, resp) => {
       if(req.method !== "GET") {
-        // TODO:
-        htmlHead(resp);
-        resp.end("TODO");
+        if(ejsHandlers[file]) {
+          return await ejsHandlers[file](req, resp);
+        }
+        htmlHead(resp, 404);
+        resp.end(consts.http.errorMessage[404]);
       }
       const session = new Session(req, resp);
       const uid = session.get("userid");
@@ -159,13 +227,44 @@ consts.http.ejsFiles.forEach(file => {
   });
 });
 
+//Reports
+vurl.add({
+  regexp:/^\/report\//i,
+  func:async (req, resp) => {
+    const id = url.parse(req.url).pathname.split("/").pop().replace(/"/g,"");
+    if(req.method !== "GET") {
+      // TODO: update
+      redirect(resp, "/home");
+      return;
+    }
+    const session = new Session(req, resp);
+    const uid = session.get("userid");
+    if(!uid) {
+      redirect(resp, "/");
+      return;
+    }
+    const user = new User(uid);
+    if(!Report.has(id)) {
+      resp.writeHead(404, {"Content-Type":"text/plain"});
+      resp.end(consts.http.errorMessage[404]);
+      return;
+    }
+    const report = new Report(id);
+    htmlHead(resp);
+    resp.end(await renderFile("/report/report.ejs", {
+      user,
+      report
+    }));
+  }
+});
+
 //start server
-const server = http.createServer((req, resp) => {
+const server = http.createServer(async (req, resp) => {
   const {pathname} = url.parse(req.url);
   const cb = vurl.query(pathname);
   if(cb) {
     try{
-      cb(req, resp);
+      await cb(req, resp);
     }catch(e){
       try{
         console.log(e);

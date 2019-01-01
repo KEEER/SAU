@@ -1,4 +1,5 @@
 const fs = require('fs');
+const crypto = require('crypto');
 const consts = require('./consts').report;
 
 let _data;
@@ -38,6 +39,14 @@ class Report{
     this.set("size", size);
   }
 
+  get userid() {
+    return this.get("userid");
+  }
+
+  set userid(userid) {
+    this.set("userid", userid);
+  }
+
   get title() {
     return this.get("title");
   }
@@ -70,12 +79,12 @@ class Report{
     this.set("place", place);
   }
 
-  get content() {
-    return this.get("content");
+  get description() {
+    return this.get("description");
   }
 
-  set content(content) {
-    this.set("content", content);
+  set description(description) {
+    this.set("description", description);
   }
 
   get checkedsize() {
@@ -110,11 +119,22 @@ class Report{
 
   static create(opts) {
     if(!opts) throw new TypeError("Options not defined");
-    return Report.add(obj);
+    opts.id = Report.createId();
+    return Report.add(opts);
   }
 
   static has(id) {
     return (id in Report.data);
+  }
+
+  static createId(){
+    const id = crypto.randomBytes(consts.length).toString("hex");
+    if(Report.has(id)) {
+      return Report.createId();
+    }
+    delete Report.data[id];
+    update();
+    return id;
   }
 
   static get data() {
@@ -131,4 +151,22 @@ class Report{
       _data = data;
     });
   }
+
+  static getReportsById(id) {
+    const reports = [];
+    for(let i in Report.data) {
+      if(Report.data[i].userid === id) {
+        reports.push(new Report(i));
+      }
+    }
+    return reports;
+  }
 }
+
+try{
+  Report.data = JSON.parse(fs.readFileSync(consts.file).toString());
+}catch(e){
+  Report.data = {};
+}
+
+module.exports = Report;
