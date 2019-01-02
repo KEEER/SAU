@@ -56,7 +56,18 @@ class User{
   }
 
   get messages() {
-    return [];
+    switch(this.role) {
+      case "association":
+      return Message.getMessagesById(this.id);
+
+      case "officer":
+      return Message.getMessagesByType(this.type).filter(msg => {
+        return msg.to === "officer";
+      });
+
+      case "admin":
+      return Message.getMessagesById(this.id);
+    }
   }
 
   get name() {
@@ -180,6 +191,14 @@ class User{
       _data = data;
     });
   }
+
+  static get all() {
+    const users = [];
+    for(let i in User.data) {
+      users.push(new User(i));
+    }
+    return users;
+  }
 }
 
 try{
@@ -193,3 +212,4 @@ module.exports = User;
 //To avoid Report require('./user') only to get {},
 //we need to import ./report at last
 const Report = require('./report');
+const Message = require('./message');

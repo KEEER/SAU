@@ -10,6 +10,7 @@ const Session = require('./session');
 const consts = require('./consts');
 const files = require('./files');
 const Report = require('./report');
+const Message = require('./message');
 const {vurl} = require("@alan-liang/utils");
 
 ejs.root = consts.http.ejsRoot;
@@ -199,6 +200,37 @@ const ejsHandlers = {
     data.userid = user.id;
     const report = Report.create(data);
     redirect(resp, "/report/" + report.id);
+  },
+  "message/new":async (req, resp) => {
+    const session = new Session(req, resp);
+    const uid = session.get("userid");
+    if(!uid) {
+      redirect(resp, "/");
+      return;
+    }
+    const user = new User(uid);
+    let data;
+    try {
+      data = await utils.postData(req, true);
+    } catch(e) {
+      redirect(resp, "/message/new?invalid");
+      return;
+    }
+    let valid = true;
+    [
+      "title",
+      "to",
+      "content"
+    ].forEach(el => {
+      if(!data[el]) valid = false;
+    });
+    if(!valid) {
+      redirect(resp, "/message/new?invalid");
+      return;
+    }
+    data.userid = user.id;
+    const message = Message.create(data);
+    redirect(resp, "/message/" + message.id);
   }
 };
 
@@ -221,8 +253,14 @@ consts.http.ejsFiles.forEach(file => {
         return;
       }
       const user = new User(uid);
+      const associations = User.all.filter(user => {
+        return user.role === "association"
+      });
       htmlHead(resp);
-      resp.end(await renderFile(`/${file}.ejs`,{user}));
+      resp.end(await renderFile(`/${file}.ejs`,{
+        user,
+        associations
+      }));
     }
   });
 });
@@ -259,12 +297,57 @@ vurl.add({
       }
       report.score = parseInt(data.score);
       report.checkedsize = data.size;
-      // TODO: send update message
+      Message.create({
+        userid:user.id,
+        to:report.userid,
+        title:`分数更新提醒`,
+        content:`您的活动报告"${report.title}"分数已更新为${report.score}`,
+      });
     }
     htmlHead(resp);
     resp.end(await renderFile("/report/report.ejs", {
       user,
       report
+    }));
+  }
+});
+
+//Messages
+vurl.add({
+  regexp:/^\/message\//i,
+  func:async (req, resp) => {
+    const id = url.parse(req.url).pathname.split("/").pop().replace(/"/g,"");
+    const session = new Session(req, resp);
+    const uid = session.get("userid");
+    if(!uid) {
+      redirect(resp, "/");
+      return;
+    }
+    const user = new User(uid);
+    if(!Message.has(id)) {
+      resp.writeHead(404, {"Content-Type":"text/plain"});
+      resp.end(consts.http.errorMessage[404]);
+      return;
+    }
+    const msg = new Message(id);
+    if(req.method !== "GET") {
+      if(user.role === "association") {
+        htmlHead(resp, 403);
+        resp.end("403 Forbidden");
+        return;
+      }
+      const data = await utils.postData(req, true);
+      if(!data || !data.score) {
+        htmlHead(resp, 400);
+        resp.end("400 Bad Request");
+        return;
+      }
+      msg.score = parseInt(data.score);
+    }
+    htmlHead(resp);
+    resp.end(await renderFile("/message/message.ejs", {
+      user,
+      message:msg
     }));
   }
 });

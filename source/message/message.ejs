@@ -15,7 +15,9 @@
               <table>
                 <tr><td class="right" style="min-width:32px;">来自</td><td class="left"><%= message.from %></td></tr>
                 <tr><td class="right">内容</td><td class="content left"><%- escapeFn(message.content).replace(/\n/g,"<br />") %></td></tr>
+                <% if(message.to !== "admin" && message.to !== "officer") { %>
                 <tr><td class="right">评分</td><td class="left"><%- include("/partial/score",{message,user}) %></td></tr>
+                <% } %>
               </table>
               <% if(user.role=="admin"||user.role=="officer"){ %>
                 <br />

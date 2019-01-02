@@ -16,7 +16,7 @@
             <form action="/message/new" method="post">
             <%- include("/mdc/input",{label:"标题",name:"title",required:true}) %>
             <%- include("/mdc/select",{label:"对象",name:"to",required:true,options:[{label:"干事",value:"officer"},{label:"管理员",value:"admin"}]}) %>
-            <%- include("/mdc/textarea",{label:"内容",name:"description",required:true}) %>
+            <%- include("/mdc/textarea",{label:"内容",name:"content",required:true}) %>
             <p>提交后不可以删除或修改，请谨慎提交。</p>
             <input type="submit" class="mdc-button mdc-button--raised" data-mdc-auto-init="MDCRipple" value="提交" />
             </form>
@@ -31,10 +31,10 @@
               name:"to",
               required:true,
               options:associations.map(
-                assoc => ({label:assoc, value:assoc})
+                assoc => ({label:assoc.name, value:assoc.id})
               )
             }) %>
-            <%- include("/mdc/textarea",{label:"内容",name:"description",required:true}) %>
+            <%- include("/mdc/textarea",{label:"内容",name:"content",required:true}) %>
             <p>提交后不可以删除或修改，请谨慎提交。</p>
             <input type="submit" class="mdc-button mdc-button--raised" data-mdc-auto-init="MDCRipple" value="提交" />
             </form>
@@ -45,5 +45,13 @@
       </div>
     </div>
     <%- include("/partial/footer") %>
+    <script>
+    if(location.href.indexOf("invalid") > -1) {
+      snackbar.show({
+        message:"信息填写不完整",
+        timeout:5000
+      });
+    }
+    </script>
   </body>
 </html>

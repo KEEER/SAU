@@ -74,6 +74,10 @@ const consts = {
     file:"reports.json",
     length:16
   },
+  message:{
+    file:"messages.json",
+    length:16
+  },
   files:{
     dir:__dirname + "/files/",
     file:"files.json",

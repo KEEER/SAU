@@ -19,6 +19,7 @@
                 新建消息
               </a>
             </div>
+            <!-- TODO: Order them -->
             <% user.messages.forEach(message => { %>
               <%- include("/partial/message-preview",{message}); %>
             <% }); %>
