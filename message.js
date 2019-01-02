@@ -48,6 +48,22 @@ class Message{
     this.set("userid", userid);
   }
 
+  get read() {
+    return this.get("read");
+  }
+
+  set read(read) {
+    this.set("read", read);
+  }
+
+  get time() {
+    return this.get("time");
+  }
+
+  set time(time) {
+    this.set("time", time);
+  }
+
   get title() {
     return this.get("title");
   }
@@ -81,6 +97,7 @@ class Message{
   static create(opts) {
     if(!opts) throw new TypeError("Options not defined");
     opts.id = Message.createId();
+    opts.time = Date.now();
     return Message.add(opts);
   }
 

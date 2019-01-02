@@ -126,6 +126,10 @@ html,body{
   top: 12px;
 }
 
+.unread{
+  font-weight: bold;
+}
+
 /* Fix MDC bug */
 .mdc-theme--secondary.mdc-text-field--outlined:not(.mdc-text-field--disabled).mdc-text-field--focused .mdc-notched-outline__leading,
 .mdc-theme--secondary.mdc-text-field--outlined:not(.mdc-text-field--disabled).mdc-text-field--focused .mdc-notched-outline__notch,
@@ -138,3 +142,4 @@ html,body{
 .mdc-theme--secondary.mdc-select--outlined:not(.mdc-select--disabled).mdc-select--focused .mdc-notched-outline .mdc-notched-outline__trailing{
   border-color: var(--mdc-theme-secondary, #2196f3);
 }
+.mdc-snackbar { transform: translateY(100%); }

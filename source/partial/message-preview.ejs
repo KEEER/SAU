@@ -1,5 +1,5 @@
 <br />
 <div class="mdc-card message">
-  <a href="/message/<%= message.id %>" class="mdc-list-item" data-mdc-auto-init="MDCRipple"><%= message.title %></a>
+  <a href="/message/<%= message.id %>" class="mdc-list-item<%= message.read?"":" unread mdc-theme--primary" %>" data-mdc-auto-init="MDCRipple"><%= message.title %></a>
   <a href="/message/<%= message.id %>" class="message-open material-icons mdc-icon-button" title="Open">open_in_new</a>
 </div>

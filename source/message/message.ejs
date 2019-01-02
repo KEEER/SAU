@@ -14,12 +14,13 @@
             <form method="post">
               <table>
                 <tr><td class="right" style="min-width:32px;">来自</td><td class="left"><%= message.from %></td></tr>
+                <tr><td class="right">时间</td><td class="left"><%= new Date(message.time).toLocaleString("zh") %></td></tr>
                 <tr><td class="right">内容</td><td class="content left"><%- escapeFn(message.content).replace(/\n/g,"<br />") %></td></tr>
                 <% if(message.to !== "admin" && message.to !== "officer") { %>
                 <tr><td class="right">评分</td><td class="left"><%- include("/partial/score",{message,user}) %></td></tr>
                 <% } %>
               </table>
-              <% if(user.role=="admin"||user.role=="officer"){ %>
+              <% if((user.role === "admin" || user.role === "officer") && (message.to !== "admin" && message.to !== "officer")) { %>
                 <br />
                 <input type="submit" class="mdc-button mdc-button--raised" data-mdc-auto-init="MDCRipple" value="提交更改" />
               <% } %>
@@ -31,3 +32,6 @@
     <%- include("/partial/footer") %>
   </body>
 </html>
+<% if(user.id === message.to || user.role === message.to) {
+  message.read = true;
+} %>

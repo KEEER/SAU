@@ -52,7 +52,7 @@
                     新建活动报告
                   </a>
                 </p>
-                <% user.reports.forEach(report => { %>
+                <% user.reports.reverse().forEach(report => { %>
                   <%- include("/partial/report-preview",{report:report}); %>
                 <% }); %>
               </div>
@@ -66,7 +66,7 @@
                     新建申请
                   </a>
                 </p>
-                <% user.applications.forEach(app => { %>
+                <% user.applications.reverse().forEach(app => { %>
                   <%- include("/partial/application-preview",{application:app}); %>
                 <% }); %>
               </div>
@@ -113,12 +113,26 @@
                 </div>
               </div>
               <div id="reports" class="tab current">
-                <% user.reports.forEach(report => { %>
+                <% user.reports.sort((msg1, msg2) => {
+                  const has1 = msg1.score !== undefined;
+                  const has2 = msg2.score !== undefined;
+                  if(has1 === has2) {
+                    return (has1 ? 1 : -1) * msg2.stime - msg1.stime;
+                  }
+                  return (has1) ? 1 : -1;
+                }).forEach(report => { %>
                   <%- include("/partial/report-preview",{report:report}); %>
                 <% }); %>
               </div>
               <div id="applications" class="tab">
-                <% user.applications.forEach(app => { %>
+                <% user.applications.sort((msg1, msg2) => {
+                  const has1 = msg1.score !== undefined;
+                  const has2 = msg2.score !== undefined;
+                  if(has1 === has2) {
+                    return (has1 ? 1 : -1) * msg2.stime - msg1.stime;
+                  }
+                  return (has1) ? 1 : -1;
+                }).forEach(app => { %>
                   <%- include("/partial/application-preview",{application:app}); %>
                 <% }); %>
               </div>

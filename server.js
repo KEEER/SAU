@@ -13,9 +13,6 @@ const Report = require('./report');
 const Message = require('./message');
 const {vurl} = require("@alan-liang/utils");
 
-ejs.root = consts.http.ejsRoot;
-ejs.rmWhitespace = true;
-
 //serve static files
 const createCallback = buffer => {
   //check if `buffer` isn't a buffer
@@ -75,7 +72,11 @@ vurl.add({
   func:(req, resp) => {
     const session = new Session(req,resp);
     if(session.get("userid")) {
-      redirect(resp, "/home");
+      let location = "/home";
+      if(new User(session.get("userid")).messages.some(msg => !msg.read)) {
+        location = "/messages";
+      }
+      redirect(resp, location);
       return;
     } else {
       vurl.query("/index.html")(req, resp);
@@ -90,7 +91,11 @@ vurl.add({
     const session = new Session(req, resp);
     const info = await utils.postData(req, true);
     if(session.get("userid")) {
-      redirect(resp, "/home");
+      let location = "/home";
+      if(new User(session.get("userid")).messages.some(msg => !msg.read)) {
+        location = "/messages";
+      }
+      redirect(resp, location);
       return;
     }
     if(!info || !info.userid || !info.passwd) {
@@ -102,7 +107,11 @@ vurl.add({
       return;
     }
     session.set("userid",uid);
-    redirect(resp, "/home");
+    let location = "/home";
+    if(new User(session.get("userid")).messages.some(msg => !msg.read)) {
+      location = "/messages";
+    }
+    redirect(resp, location);
   }
 });
 

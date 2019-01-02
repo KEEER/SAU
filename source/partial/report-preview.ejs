@@ -1,5 +1,5 @@
 <br />
-<div class="mdc-card">
+<div class="mdc-card<%= (report.score !== undefined || user.role === "association")?"":" unread mdc-theme--primary" %>">
   <%= report.title %>
   <div class="mdc-card__actions">
     <div class="mdc-card__action-icons">

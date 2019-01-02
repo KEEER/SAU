@@ -112,8 +112,13 @@ class Report{
     this.set("files", files);
   }
 
+  get stime() {
+    return this.get("stime");
+  }
+
   static add(obj) {
     Report.data[obj.id] = obj;
+    console.log(obj);
     update();
     return new Report(obj.id);
   }
@@ -121,6 +126,7 @@ class Report{
   static create(opts) {
     if(!opts) throw new TypeError("Options not defined");
     opts.id = Report.createId();
+    opts.stime = Date.now();
     return Report.add(opts);
   }
 
