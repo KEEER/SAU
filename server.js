@@ -10,6 +10,7 @@ const Session = require('./session');
 const consts = require('./consts');
 const files = require('./files');
 const Report = require('./report');
+const Application = require('./application');
 const Message = require('./message');
 const {vurl} = require("@alan-liang/utils");
 
@@ -73,7 +74,7 @@ vurl.add({
     const session = new Session(req,resp);
     if(session.get("userid")) {
       let location = "/home";
-      if(new User(session.get("userid")).messages.some(msg => !msg.read)) {
+      if(new User(session.get("userid")).messagesReceived.some(msg => !msg.read)) {
         location = "/messages";
       }
       redirect(resp, location);
@@ -92,7 +93,7 @@ vurl.add({
     const info = await utils.postData(req, true);
     if(session.get("userid")) {
       let location = "/home";
-      if(new User(session.get("userid")).messages.some(msg => !msg.read)) {
+      if(new User(session.get("userid")).messagesReceived.some(msg => !msg.read)) {
         location = "/messages";
       }
       redirect(resp, location);
@@ -108,7 +109,7 @@ vurl.add({
     }
     session.set("userid",uid);
     let location = "/home";
-    if(new User(session.get("userid")).messages.some(msg => !msg.read)) {
+    if(new User(session.get("userid")).messagesReceived.some(msg => !msg.read)) {
       location = "/messages";
     }
     redirect(resp, location);
@@ -164,7 +165,6 @@ const ejsHandlers = {
       return;
     }
     const user = new User(uid);
-    console.log(passwd);
     if(!user.isValidPasswd(passwd.current)) {
       redirect(resp, "/settings?invalid");
       return;
@@ -209,6 +209,64 @@ const ejsHandlers = {
     data.userid = user.id;
     const report = Report.create(data);
     redirect(resp, "/report/" + report.id);
+  },
+  "application/new":async (req, resp) => {
+    const session = new Session(req, resp);
+    const uid = session.get("userid");
+    if(!uid) {
+      redirect(resp, "/");
+      return;
+    }
+    const user = new User(uid);
+    let data;
+    try {
+      data = await utils.postData(req, true);
+    } catch(e) {
+      redirect(resp, "/application/new?invalid");
+      return;
+    }
+    let valid = true;
+    [
+      "title",
+      "type",
+      "description"
+    ].forEach(el => {
+      if(!data[el]) valid = false;
+    });
+    if(!["room", "ad", "xl-activity", "outer-activity"].some(type => type === data.type)) {
+      valid = false;
+    }
+    switch(data.type) {
+      case "room":
+      [
+        "time1",
+        "place1",
+        "time2",
+        "place2",
+        "time3",
+        "place3"
+      ].forEach(el => {
+        if(!data[el]) valid = false;
+      });
+      break;
+
+      default:
+      [
+        "time",
+        "place",
+        "begin",
+      ].forEach(el => {
+        if(!data[el]) valid = false;
+      });
+      break;
+    }
+    if(!valid) {
+      redirect(resp, "/application/new?invalid");
+      return;
+    }
+    data.userid = user.id;
+    const app = Application.create(data);
+    redirect(resp, "/application/" + app.id);
   },
   "message/new":async (req, resp) => {
     const session = new Session(req, resp);
@@ -317,6 +375,53 @@ vurl.add({
     resp.end(await renderFile("/report/report.ejs", {
       user,
       report
+    }));
+  }
+});
+
+//Applications
+vurl.add({
+  regexp:/^\/application\//i,
+  func:async (req, resp) => {
+    const id = url.parse(req.url).pathname.split("/").pop().replace(/"/g,"");
+    const session = new Session(req, resp);
+    const uid = session.get("userid");
+    if(!uid) {
+      redirect(resp, "/");
+      return;
+    }
+    const user = new User(uid);
+    if(!Application.has(id)) {
+      resp.writeHead(404, {"Content-Type":"text/plain"});
+      resp.end(consts.http.errorMessage[404]);
+      return;
+    }
+    const application = new Application(id);
+    if(req.method !== "GET") {
+      if(user.role === "association") {
+        htmlHead(resp, 403);
+        resp.end("403 Forbidden");
+        return;
+      }
+      const data = await utils.postData(req, true);
+      if(!data || !data.score || !data.reply) {
+        htmlHead(resp, 400);
+        resp.end("400 Bad Request");
+        return;
+      }
+      application.score = parseInt(data.score);
+      application.reply = data.reply;
+      Message.create({
+        userid:user.id,
+        to:application.userid,
+        title:`申请更新提醒`,
+        content:`您的申请"${application.title}"已更新，回复为：${application.reply}，扣分为：${application.score}`,
+      });
+    }
+    htmlHead(resp);
+    resp.end(await renderFile("/application/application.ejs", {
+      user,
+      application
     }));
   }
 });

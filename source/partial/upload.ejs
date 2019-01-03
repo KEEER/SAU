@@ -71,7 +71,6 @@ fileinput.onchange = function(){
       xhr.upload.onprogress = xhr.onprogress = function(e) {
         var _progress = e.loaded / e.total;
         progress.progress = _progress;
-        console.log(_progress);
         return;
       };
       xhr.withCredentials = true;

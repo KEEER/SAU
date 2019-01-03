@@ -37,7 +37,16 @@ class Message{
   }
 
   get from() {
-    return this.user.name;
+    switch(this.user.role) {
+      case "association":
+      return this.user.name;
+
+      case "officer":
+      return "干事";
+
+      case "admin":
+      return "管理员";
+    }
   }
 
   get userid() {
@@ -134,6 +143,16 @@ class Message{
     const messages = [];
     for(let i in Message.data) {
       if(Message.data[i].to === id) {
+        messages.push(new Message(i));
+      }
+    }
+    return messages;
+  }
+
+  static getMessagesByAuthorId(id) {
+    const messages = [];
+    for(let i in Message.data) {
+      if(Message.data[i].userid === id) {
         messages.push(new Message(i));
       }
     }

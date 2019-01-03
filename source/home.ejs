@@ -52,9 +52,11 @@
                     新建活动报告
                   </a>
                 </p>
-                <% user.reports.reverse().forEach(report => { %>
-                  <%- include("/partial/report-preview",{report:report}); %>
-                <% }); %>
+                <div class="mdc-list" data-mdc-auto-init="MDCList">
+                  <% user.reports.reverse().forEach(report => { %>
+                    <%- include("/partial/report-preview",{report:report}); %>
+                  <% }); %>
+                </div>
               </div>
               <div id="applications" class="tab">
                 <a href="/application/new" class="mdc-fab" data-mdc-auto-init="MDCRipple" aria-label="New">
@@ -66,9 +68,11 @@
                     新建申请
                   </a>
                 </p>
-                <% user.applications.reverse().forEach(app => { %>
-                  <%- include("/partial/application-preview",{application:app}); %>
-                <% }); %>
+                <div class="mdc-list" data-mdc-auto-init="MDCList">
+                  <% user.applications.reverse().forEach(app => { %>
+                    <%- include("/partial/application-preview",{application:app}); %>
+                  <% }); %>
+                </div>
               </div>
               <script>
               var $=function(a){return document.querySelector(a);};
@@ -113,6 +117,7 @@
                 </div>
               </div>
               <div id="reports" class="tab current">
+                <div class="mdc-list" data-mdc-auto-init="MDCList">
                 <% user.reports.sort((msg1, msg2) => {
                   const has1 = msg1.score !== undefined;
                   const has2 = msg2.score !== undefined;
@@ -123,8 +128,10 @@
                 }).forEach(report => { %>
                   <%- include("/partial/report-preview",{report:report}); %>
                 <% }); %>
+                </div>
               </div>
               <div id="applications" class="tab">
+                <div class="mdc-list" data-mdc-auto-init="MDCList">
                 <% user.applications.sort((msg1, msg2) => {
                   const has1 = msg1.score !== undefined;
                   const has2 = msg2.score !== undefined;
@@ -135,6 +142,7 @@
                 }).forEach(app => { %>
                   <%- include("/partial/application-preview",{application:app}); %>
                 <% }); %>
+                </div>
               </div>
               <script>
               var $=function(a){return document.querySelector(a);};

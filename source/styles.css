@@ -114,13 +114,13 @@ html,body{
   display: inline-block;
 }
 
-.message{
+.message, .report, .application{
   position: relative;
   min-height: 68px;
   padding-right: 58px;
 }
 
-.message-open{
+.open{
   position: absolute;
   right: 12px;
   top: 12px;

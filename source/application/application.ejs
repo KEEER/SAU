@@ -30,12 +30,18 @@
             <form method="post">
               <table>
                 <tr><td class="right" style="min-width:64px;">社团</td><td class="left"><%= application.name %></td></tr>
+                <tr><td class="right">提交时间</td><td class="left"><%= new Date(application.stime).toLocaleString("zh") %></td></tr>
                 <tr><td class="right">申请类型</td><td class="left"><%= type(application.type) %></td></tr>
+                <% if(application.type !== "room") { %>
                 <tr><td class="right">开始时间</td><td class="left"><%= application.begin %></td></tr>
                 <tr><td class="right">持续时间</td><td class="left"><%= application.time %></td></tr>
                 <tr><td class="right">地点</td><td class="left"><%= application.place %></td></tr>
-                <tr><td class="right">内容</td><td class="content left"><%- escapeFn(application.content).replace(/\n/g,"<br />") %></td></tr>
-                <tr><td class="right">附件</td><td class="left">TODO</td></tr>
+                <% } else for(let i = 0; i < 3; i++) { %>
+                <tr><td class="right">时间志愿<%= i+1 %></td><td class="left"><%= application.times[i] %></td></tr>
+                <tr><td class="right">地点志愿<%= i+1 %></td><td class="left"><%= application.places[i] %></td></tr>
+                <% } %>
+                <tr><td class="right">内容</td><td class="content left"><%- escapeFn(application.description).replace(/\n/g,"<br />") %></td></tr>
+                <tr><td class="right">附件</td><td class="left"><%- include("/partial/files",{files:application.files}) %></td></tr>
                 <tr><td class="right">回复</td><td class="left"><%- include("/partial/reply",{application,user}) %></td></tr>
                 <tr><td class="right">扣分</td><td class="left"><%- include("/partial/score",{application,user}) %></td></tr>
               </table>

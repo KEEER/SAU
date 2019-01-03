@@ -19,14 +19,65 @@
                 新建消息
               </a>
             </div>
-            <% user.messages.sort((msg1, msg2) => {
-              if(msg1.read === msg2.read) {
-                return (msg1.read ? 1 : -1) * msg2.time - msg1.time;
-              }
-              return msg1.read ? 1 : -1;
-            }).forEach(message => { %>
-              <%- include("/partial/message-preview",{message}); %>
-            <% }); %>
+            <div class="mdc-tab-bar" data-mdc-auto-init="MDCTabBar" role="tablist">
+             <div class="mdc-tab-scroller">
+               <div class="mdc-tab-scroller__scroll-area">
+                 <div class="mdc-tab-scroller__scroll-content">
+                   <button id="received-tab" class="mdc-tab mdc-tab--active" role="tab" aria-selected="true" tabindex="0">
+                     <span class="mdc-tab__content">
+                       <span class="mdc-tab__text-label">我收到的</span>
+                     </span>
+                     <span class="mdc-tab-indicator mdc-tab-indicator--active">
+                       <span class="mdc-tab-indicator__content mdc-tab-indicator__content--underline"></span>
+                     </span>
+                     <span class="mdc-tab__ripple"></span>
+                   </button>
+                   <button id="sent-tab" class="mdc-tab" role="tab" aria-selected="true" tabindex="1">
+                     <span class="mdc-tab__content">
+                       <span class="mdc-tab__text-label">我发出的</span>
+                     </span>
+                     <span class="mdc-tab-indicator">
+                       <span class="mdc-tab-indicator__content mdc-tab-indicator__content--underline"></span>
+                     </span>
+                     <span class="mdc-tab__ripple"></span>
+                   </button>
+                 </div>
+               </div>
+             </div>
+           </div>
+           <div id="received" class="tab current mdc-list" data-mdc-auto-init="MDCList">
+              <% user.messagesReceived.sort((msg1, msg2) => {
+                if(msg1.read === msg2.read) {
+                  return (msg1.read ? 1 : -1) * msg2.time - msg1.time;
+                }
+                return msg1.read ? 1 : -1;
+              }).forEach(message => { %>
+                <%- include("/partial/message-preview",{message}); %>
+              <% }); %>
+           </div>
+           <div id="sent" class="tab mdc-list" data-mdc-auto-init="MDCList">
+             <% user.messagesSent.sort((msg1, msg2) => {
+               if(msg1.read === msg2.read) {
+                 return (msg1.read ? 1 : -1) * msg2.time - msg1.time;
+               }
+               return msg1.read ? 1 : -1;
+             }).forEach(message => { %>
+               <%- include("/partial/message-preview",{message}); %>
+             <% }); %>
+           </div>
+           <script>
+           var $=function(a){return document.querySelector(a);};
+           var received=$("#received");
+           var sent=$("#sent");
+           $("#received-tab").onclick=function(){
+             received.classList.add("current");
+             sent.classList.remove("current");
+           };
+           $("#sent-tab").onclick=function(){
+             received.classList.remove("current");
+             sent.classList.add("current");
+           };
+           </script>
           </div>
         </div>
       </div>

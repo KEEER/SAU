@@ -118,7 +118,6 @@ class Report{
 
   static add(obj) {
     Report.data[obj.id] = obj;
-    console.log(obj);
     update();
     return new Report(obj.id);
   }

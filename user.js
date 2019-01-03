@@ -29,7 +29,7 @@ class User{
     this.reports.forEach(el => {
       score += (el.score || 0);
     });
-    this.messages.forEach(el => {
+    this.messagesReceived.forEach(el => {
       score += (el.score || 0);
     });
     this.applications.forEach(el => {
@@ -52,10 +52,19 @@ class User{
   }
 
   get applications() {
-    return [];
+    switch(this.role) {
+      case "association":
+      return Application.getApplicationsById(this.id);
+
+      case "officer":
+      return Application.getApplicationsByType(this.type);
+
+      case "admin":
+      return Application.all;
+    }
   }
 
-  get messages() {
+  get messagesReceived() {
     switch(this.role) {
       case "association":
       return Message.getMessagesById(this.id);
@@ -68,6 +77,10 @@ class User{
       case "admin":
       return Message.getMessagesById(this.id);
     }
+  }
+
+  get messagesSent () {
+    return Message.getMessagesByAuthorId(this.id);
   }
 
   get name() {
@@ -212,4 +225,5 @@ module.exports = User;
 //To avoid Report require('./user') only to get {},
 //we need to import ./report at last
 const Report = require('./report');
+const Application = require('./application');
 const Message = require('./message');

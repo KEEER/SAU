@@ -1,9 +1,5 @@
-<br />
-<div class="mdc-card<%= (application.score !== undefined || user.role === "association")?"":" unread mdc-theme--primary" %>">
+<a href="/application/<%= application.id %>" class="mdc-list-item application<%= (application.score !== undefined || user.role === "association")?"":" unread mdc-theme--primary" %>" data-mdc-auto-init="MDCRipple">
   <%= application.title %>
-  <div class="mdc-card__actions">
-    <div class="mdc-card__action-icons">
-      <a href="/application/<%= application.id %>" class="material-icons mdc-icon-button mdc-card__action mdc-card__action--icon" title="Open">open_in_new</a>
-    </div>
-  </div>
-</div>
+  <i class="open material-icons mdc-icon-button" title="Open">open_in_new</i>
+</a>
+<hr class="mdc-list-divider">

@@ -74,6 +74,10 @@ const consts = {
     file:"reports.json",
     length:16
   },
+  application:{
+    file:"applications.json",
+    length:16
+  },
   message:{
     file:"messages.json",
     length:16
