@@ -88,7 +88,8 @@
               };
               </script>
             <% break;
-               case "officer":%>
+               case "officer":
+               if(user.type !== "room") { %>
 
                <div class="mdc-tab-bar" data-mdc-auto-init="MDCTabBar" role="tablist">
                 <div class="mdc-tab-scroller">
@@ -130,7 +131,7 @@
                 <% }); %>
                 </div>
               </div>
-              <div id="applications" class="tab">
+              <div id="applications" class="tab"><% } %>
                 <div class="mdc-list" data-mdc-auto-init="MDCList">
                 <% user.applications.sort((msg1, msg2) => {
                   const has1 = msg1.score !== undefined;
@@ -143,6 +144,7 @@
                   <%- include("/partial/application-preview",{application:app}); %>
                 <% }); %>
                 </div>
+                <% if(user.type !== "room") { %>
               </div>
               <script>
               var $=function(a){return document.querySelector(a);};
@@ -157,7 +159,8 @@
                 applications.classList.add("current");
               };
               </script>
-            <% break;
+              <% }
+               break;
                default:%>
             unknown
             <% break;

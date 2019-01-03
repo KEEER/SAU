@@ -17,7 +17,9 @@ const consts = {
       "application/new",
       "message/new",
       "settings",
-      "messages"
+      "messages",
+      "about",
+      "associations"
     ],
     errorMessage:{
       501:"The server has encountered some strange error. Maybe a monster ate the server?",

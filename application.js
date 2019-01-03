@@ -188,7 +188,7 @@ class Application{
     const applications = [];
     for(let i in Application.data) {
       const application = new Application(i);
-      if(application.user.type === type) {
+      if(application.user.type === type || (application.type === "room" && type === "room")) {
         applications.push(application);
       }
     }

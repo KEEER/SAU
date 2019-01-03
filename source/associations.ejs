@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="zh-CN" dir="ltr">
+  <head>
+    <%- include("/partial/header",{title:"消息 | 人大附中社团管理平台"}) %>
+  </head>
+  <body>
+    <%- include("/partial/drawer",{user:user}) %>
+    <%- include("/partial/appbar",{title:"消息"}) %>
+    <div id="wrapper" class="mdc-top-app-bar--fixed-adjust">
+      <div id="content-in">
+        <div id="content">
+          <div class="mdc-card left">
+            <% if(user.role === "association") { %>
+              您的身份不允许访问本页面。
+            <% } else { %>
+              <div class="mdc-list mdc-list--two-line" data-mdc-auto-init="MDCList">
+              <% associations.filter(assoc => {
+                return user.type === "room" || user.role === "admin" || assoc.type === user.type
+              }).forEach(assoc => { %>
+                <a class="mdc-list-item" target="_blank" href="/association/<%= assoc.id %>" data-mdc-auto-init="MDCRipple">
+                  <span class="mdc-list-item__text" style="width: 100%;">
+                    <span class="mdc-list-item__primary-text"><%= assoc.name %></span>
+                    <span class="mdc-list-item__secondary-text">得分：<%= assoc.score %></span>
+                  </span>
+                </a>
+              <% }); %>
+              </div>
+            <% } %>
+          </div>
+        </div>
+      </div>
+    </div>
+    <%- include("/partial/footer") %>
+  </body>
+</html>
