@@ -84,6 +84,17 @@ const consts = {
     file:"messages.json",
     length:16
   },
+  association:{
+    types:{
+      "voluntary":"公益",
+      "academic":"学术",
+      "scitech":"科技",
+      "culture":"文化",
+      "art":"艺术",
+      "sports":"体育",
+      "activity":"活动"
+    }
+  },
   files:{
     dir:__dirname + "/files/",
     file:"files.json",

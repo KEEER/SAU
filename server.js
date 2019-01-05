@@ -466,6 +466,36 @@ vurl.add({
   }
 });
 
+//Associations
+vurl.add({
+  regexp:/^\/association\//i,
+  func:async (req, resp) => {
+    const id = url.parse(req.url).pathname.split("/").pop().replace(/"/g,"");
+    const session = new Session(req, resp);
+    const uid = session.get("userid");
+    if(!uid) {
+      redirect(resp, "/");
+      return;
+    }
+    const user = new User(uid);
+    if(!User.has(id)) {
+      resp.writeHead(404, {"Content-Type":"text/plain"});
+      resp.end(consts.http.errorMessage[404]);
+      return;
+    }
+    if(user.role === "association") {
+      htmlHead(resp, 403);
+      resp.end("403 Forbidden");
+      return;
+    }
+    htmlHead(resp);
+    resp.end(await renderFile("/association/association.ejs", {
+      user,
+      association:new User(id)
+    }));
+  }
+});
+
 //start server
 const server = http.createServer(async (req, resp) => {
   const {pathname} = url.parse(req.url);

@@ -12,6 +12,15 @@
 <script>mdc.autoInit();</script>
 <script>
 window.snackbar = document.querySelector(".mdc-snackbar").MDCSnackbar;
+window.onresize = function() {
+  var width = window.innerWidth;
+  if(width > 720) {
+    document.getElementById('drawer').MDCDrawer.open=!0;
+  } else {
+    document.getElementById('drawer').MDCDrawer.open=!1;
+  }
+};
+window.onresize();
 </script>
 <!--div style="display:none;">
   <script src="https://s23.cnzz.com/z_stat.php?id=1275351229&web_id=1275351229" language="JavaScript"></script>
