@@ -13,6 +13,7 @@ const consts = {
     ejsRoot:__dirname+"/source/",
     ejsFiles:[
       "home",
+      "inbox",
       "report/new",
       "application/new",
       "message/new",

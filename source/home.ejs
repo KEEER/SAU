@@ -2,6 +2,7 @@
 <html lang="zh-CN" dir="ltr">
   <head>
     <%- include("/partial/header",{title:"人大附中社团管理平台"}) %>
+    <link rel="stylesheet" href="https://unpkg.com/flickity@2/dist/flickity.min.css">
   </head>
   <body>
     <%- include("/partial/drawer",{user:user}) %>
@@ -10,165 +11,26 @@
       <div id="content-in">
         <div id="content">
           <div class="mdc-card">
-            <% switch(user.role) {
-                 case "admin":%>
-            admin
-            <% break;
-               case "association":%>
-
-               <div class="mdc-tab-bar" data-mdc-auto-init="MDCTabBar" role="tablist">
-                <div class="mdc-tab-scroller">
-                  <div class="mdc-tab-scroller__scroll-area">
-                    <div class="mdc-tab-scroller__scroll-content">
-                      <button id="report-tab" class="mdc-tab mdc-tab--active" role="tab" aria-selected="true" tabindex="0">
-                        <span class="mdc-tab__content">
-                          <span class="mdc-tab__text-label">活动报告</span>
-                        </span>
-                        <span class="mdc-tab-indicator mdc-tab-indicator--active">
-                          <span class="mdc-tab-indicator__content mdc-tab-indicator__content--underline"></span>
-                        </span>
-                        <span class="mdc-tab__ripple"></span>
-                      </button>
-                      <button id="application-tab" class="mdc-tab" role="tab" aria-selected="true" tabindex="1">
-                        <span class="mdc-tab__content">
-                          <span class="mdc-tab__text-label">申请</span>
-                        </span>
-                        <span class="mdc-tab-indicator">
-                          <span class="mdc-tab-indicator__content mdc-tab-indicator__content--underline"></span>
-                        </span>
-                        <span class="mdc-tab__ripple"></span>
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div id="reports" class="tab current">
-                <a href="/report/new" class="mdc-fab" data-mdc-auto-init="MDCRipple" aria-label="New">
-                  <span class="mdc-fab__icon material-icons">add</span>
+            <div class="main-carousel" data-flickity='{ "autoPlay": true }'>
+              <% require("./home").carousel.forEach(el => { %>
+              <div class="carousel-cell"><a href="<%= el.link %>"><img src="<%= el.img %>" /></a></div>
+              <% }); %>
+            </div>
+            <br />
+            <h1>公告</h1>
+            <div class="mdc-list" data-mdc-auto-init="MDCList">
+              <% require("./home").links.forEach(el => { %>
+                <a href="<%= el.link %>" class="mdc-list-item" data-mdc-auto-init="MDCRipple">
+                  <%= el.title %>
                 </a>
-                <p class="right">
-                  <a href="/report/new" class="mdc-button mdc-button--raised mdc-theme--secondary-bg" data-mdc-auto-init="MDCRipple">
-                    <span class="material-icons">add</span>
-                    新建活动报告
-                  </a>
-                </p>
-                <div class="mdc-list" data-mdc-auto-init="MDCList">
-                  <% user.reports.reverse().forEach(report => { %>
-                    <%- include("/partial/report-preview",{report:report}); %>
-                  <% }); %>
-                </div>
-              </div>
-              <div id="applications" class="tab">
-                <a href="/application/new" class="mdc-fab" data-mdc-auto-init="MDCRipple" aria-label="New">
-                  <span class="mdc-fab__icon material-icons">add</span>
-                </a>
-                <p class="right">
-                  <a href="/application/new" class="mdc-button mdc-button--raised mdc-theme--secondary-bg" data-mdc-auto-init="MDCRipple">
-                    <span class="material-icons">add</span>
-                    新建申请
-                  </a>
-                </p>
-                <div class="mdc-list" data-mdc-auto-init="MDCList">
-                  <% user.applications.reverse().forEach(app => { %>
-                    <%- include("/partial/application-preview",{application:app}); %>
-                  <% }); %>
-                </div>
-              </div>
-              <script>
-              var $=function(a){return document.querySelector(a);};
-              var reports=$("#reports");
-              var applications=$("#applications");
-              $("#report-tab").onclick=function(){
-                reports.classList.add("current");
-                applications.classList.remove("current");
-              };
-              $("#application-tab").onclick=function(){
-                reports.classList.remove("current");
-                applications.classList.add("current");
-              };
-              </script>
-            <% break;
-               case "officer":
-               if(user.type !== "room") { %>
-
-               <div class="mdc-tab-bar" data-mdc-auto-init="MDCTabBar" role="tablist">
-                <div class="mdc-tab-scroller">
-                  <div class="mdc-tab-scroller__scroll-area">
-                    <div class="mdc-tab-scroller__scroll-content">
-                      <button id="report-tab" class="mdc-tab mdc-tab--active" role="tab" aria-selected="true" tabindex="0">
-                        <span class="mdc-tab__content">
-                          <span class="mdc-tab__text-label">活动报告</span>
-                        </span>
-                        <span class="mdc-tab-indicator mdc-tab-indicator--active">
-                          <span class="mdc-tab-indicator__content mdc-tab-indicator__content--underline"></span>
-                        </span>
-                        <span class="mdc-tab__ripple"></span>
-                      </button>
-                      <button id="application-tab" class="mdc-tab" role="tab" aria-selected="true" tabindex="1">
-                        <span class="mdc-tab__content">
-                          <span class="mdc-tab__text-label">申请</span>
-                        </span>
-                        <span class="mdc-tab-indicator">
-                          <span class="mdc-tab-indicator__content mdc-tab-indicator__content--underline"></span>
-                        </span>
-                        <span class="mdc-tab__ripple"></span>
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div id="reports" class="tab current">
-                <div class="mdc-list" data-mdc-auto-init="MDCList">
-                <% user.reports.sort((msg1, msg2) => {
-                  const has1 = msg1.score !== undefined;
-                  const has2 = msg2.score !== undefined;
-                  if(has1 === has2) {
-                    return (has1 ? 1 : -1) * msg2.stime - msg1.stime;
-                  }
-                  return (has1) ? 1 : -1;
-                }).forEach(report => { %>
-                  <%- include("/partial/report-preview",{report:report}); %>
-                <% }); %>
-                </div>
-              </div>
-              <div id="applications" class="tab"><% } %>
-                <div class="mdc-list" data-mdc-auto-init="MDCList">
-                <% user.applications.sort((msg1, msg2) => {
-                  const has1 = msg1.score !== undefined;
-                  const has2 = msg2.score !== undefined;
-                  if(has1 === has2) {
-                    return (has1 ? 1 : -1) * msg2.stime - msg1.stime;
-                  }
-                  return (has1) ? 1 : -1;
-                }).forEach(app => { %>
-                  <%- include("/partial/application-preview",{application:app}); %>
-                <% }); %>
-                </div>
-                <% if(user.type !== "room") { %>
-              </div>
-              <script>
-              var $=function(a){return document.querySelector(a);};
-              var reports=$("#reports");
-              var applications=$("#applications");
-              $("#report-tab").onclick=function(){
-                reports.classList.add("current");
-                applications.classList.remove("current");
-              };
-              $("#application-tab").onclick=function(){
-                reports.classList.remove("current");
-                applications.classList.add("current");
-              };
-              </script>
-              <% }
-               break;
-               default:%>
-            unknown
-            <% break;
-              } %>
+                <hr class="mdc-list-divider">
+              <% }) %>
+            </div>
           </div>
         </div>
       </div>
     </div>
     <%- include("/partial/footer") %>
+    <script src="https://unpkg.com/flickity@2/dist/flickity.pkgd.min.js"></script>
   </body>
 </html>

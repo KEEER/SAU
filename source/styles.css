@@ -75,6 +75,7 @@ html,body{
 
 .mdc-card{
   padding: 10px;
+  text-align: center;
 }
 
 #reports, #applications{
@@ -153,6 +154,10 @@ html,body{
 
 .unread{
   font-weight: bold;
+}
+
+.carousel-cell, .carousel-cell img{
+  width: 100%;
 }
 
 /* Fix MDC bug */
