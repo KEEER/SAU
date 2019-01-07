@@ -1,5 +1,6 @@
 const querystring = require('querystring');
 const url = require('url');
+const fs = require('fs');
 const mime = require('mime');
 const etag = require('etag');
 const ejs = require('ejs');
@@ -95,6 +96,16 @@ class Utils{
       location = "/messages";
     }
     this.redirect(resp, location);
+  }
+  logRequest(req, resp, e) {
+    const path = url.parse(req.url).pathname;
+    const ip = req.headers[consts.http.realIpHeader] || req.socket.address().address;
+    const uid = (new Session(req, resp)).get("userid");
+    const log = (`${ip} ${uid} ${req.method} ${path}: ${resp.statusCode}\n${new Date()} ${req.headers["user-agent"]}\n`);
+    fs.appendFile(consts.http.logFile, log, () => {});
+    if(e) {
+      console.error(e.stack || e);
+    }
   }
 }
 module.exports = new Utils();

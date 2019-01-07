@@ -461,21 +461,26 @@ vurl.add({
 
 //start server
 const server = http.createServer(async (req, resp) => {
+  resp.setHeader("Server", "SAU/" + consts.version);
+  resp.setHeader("X-Author", ["Alan-Liang", "KEEER"]);
   const {pathname} = url.parse(req.url);
   const cb = vurl.query(pathname);
   if(cb) {
     try{
       await cb(req, resp);
+      utils.logRequest(req, resp);
     }catch(e){
       try{
-        console.log(e);
+        utils.logRequest(req, resp, e);
         resp.writeHead(501, {"Content-Type":"text/plain"});
         resp.end(consts.http.errorMessage[501]);
+        return;
       }catch(e1){}
     }
   }else{
     resp.writeHead(404, {"Content-Type":"text/plain"});
     resp.end(consts.http.errorMessage[404]);
+    utils.logRequest(req, resp);
   }
 });
 server.listen(consts.http.port);

@@ -1,6 +1,9 @@
 const fs = require('fs');
 const consts = {
+  version:"0.1.28",
   http:{
+    logFile:"access.log",
+    realIpHeader:"x-real-ip",
     port: 50082,
     staticDir:__dirname+"/source/",
     staticFiles:[
