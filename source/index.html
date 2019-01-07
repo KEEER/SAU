@@ -15,7 +15,6 @@
       .mdc-text-field{
         width: 261px !important;
       }
-      .mdc-snackbar { transform: translateY(100%); }
 
       img{
         vertical-align: bottom;
@@ -73,7 +72,7 @@
         left: 3px;
       }
     </style>
-    <link rel="stylesheet" type="text/css" href="https://unpkg.com/material-components-web@latest/dist/material-components-web.min.css">
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/material-components-web@latest/dist/material-components-web.min.css">
     <link rel="stylesheet" href="https://fonts.loli.net/icon?family=Material+Icons">
   </head>
   <body>
@@ -119,25 +118,22 @@
         </div>
       </div>
       <div class="padding"></div>
-      <div class="mdc-snackbar mdc-snackbar--align-start"
-           aria-live="assertive"
-           aria-atomic="true"
-           aria-hidden="true"
-           data-mdc-auto-init="MDCSnackbar">
-        <div class="mdc-snackbar__text"></div>
-        <div class="mdc-snackbar__action-wrapper">
-          <button type="button" class="mdc-snackbar__action-button"></button>
+    </div>
+    <div class="mdc-snackbar mdc-snackbar--leading" data-mdc-auto-init="MDCSnackbar">
+      <div class="mdc-snackbar__surface">
+        <div class="mdc-snackbar__label"
+             role="status"
+             aria-live="polite">
         </div>
       </div>
     </div>
-    <script src="https://unpkg.com/material-components-web@latest/dist/material-components-web.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/material-components-web@latest/dist/material-components-web.min.js"></script>
     <script>mdc.autoInit();</script>
     <script>
     if(location.href.indexOf("invalid") > -1) {
-      document.querySelector(".mdc-snackbar").MDCSnackbar.show({
-        message:"用户名或密码错误",
-        timeout:5000
-      });
+      var snackbar = document.querySelector(".mdc-snackbar").MDCSnackbar;
+      snackbar.labelText = "用户名或密码错误";
+      snackbar.open();
     }
     </script>
   </body>

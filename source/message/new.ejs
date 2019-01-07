@@ -47,10 +47,8 @@
     <%- include("/partial/footer") %>
     <script>
     if(location.href.indexOf("invalid") > -1) {
-      snackbar.show({
-        message:"信息填写不完整",
-        timeout:5000
-      });
+      snackbar.labelText = "信息填写不完整";
+      snackbar.open();
     }
     </script>
   </body>

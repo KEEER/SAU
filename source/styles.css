@@ -37,8 +37,8 @@ html,body{
     margin-left: 255px;
   }
 
-  .mdc-drawer--open ~ .mdc-snackbar--align-start,
-  .mdc-drawer--closing ~ .mdc-snackbar--align-start{
+  .mdc-drawer--open ~ .mdc-snackbar--leading,
+  .mdc-drawer--closing ~ .mdc-snackbar--leading{
     margin-left: 255px;
   }
 

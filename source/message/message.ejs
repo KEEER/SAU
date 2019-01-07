@@ -32,10 +32,8 @@
     <%- include("/partial/footer") %>
     <script>
     if(location.href.indexOf("needAdmin") > -1) {
-      snackbar.show({
-        message:"扣分操作需要管理员权限",
-        timeout:5000
-      });
+      snackbar.labelText = "扣分操作需要管理员权限";
+      snackbar.open();
     }
     </script>
   </body>

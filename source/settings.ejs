@@ -35,16 +35,12 @@
     <%- include("/partial/footer") %>
     <script>
     if(location.href.indexOf("ok") > -1) {
-      snackbar.show({
-        message:"修改密码成功",
-        timeout:5000
-      });
+      snackbar.labelText = "修改密码成功";
+      snackbar.open();
     }
     if(location.href.indexOf("invalid") > -1) {
-      snackbar.show({
-        message:"原密码错误",
-        timeout:5000
-      });
+      snackbar.labelText = "原密码错误";
+      snackbar.open();
     }
     </script>
   </body>
