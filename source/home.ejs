@@ -13,14 +13,19 @@
           <div class="mdc-card">
             <div class="main-carousel" data-flickity='{ "autoPlay": true }'>
               <% require("./home").carousel.forEach(el => { %>
-              <div class="carousel-cell"><a href="<%= el.link %>"><img src="<%= el.img %>" /></a></div>
+              <div class="carousel-cell"><a target="_blank" href="<%= el.link %>"><img src="<%= el.img %>" /></a></div>
               <% }); %>
             </div>
             <br />
-            <h1>公告</h1>
+            <h1>
+              <% if(user.role === "admin") { %>
+              <a href="/home-settings" class="mdc-icon-button material-icons">settings</a>
+              <% } %>
+              公告
+            </h1>
             <div class="mdc-list" data-mdc-auto-init="MDCList">
               <% require("./home").links.forEach(el => { %>
-                <a href="<%= el.link %>" class="mdc-list-item" data-mdc-auto-init="MDCRipple">
+                <a target="_blank" href="<%= el.link %>" class="mdc-list-item" data-mdc-auto-init="MDCRipple">
                   <%= el.title %>
                 </a>
                 <hr class="mdc-list-divider">

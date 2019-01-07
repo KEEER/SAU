@@ -1,5 +1,8 @@
 <a href="/message/<%= message.id %>" class="mdc-list-item message" data-mdc-auto-init="MDCRipple">
-  <span class="mdc-list-item__text<%= message.read?"":" unread mdc-theme--primary" %>"><%= message.title %></span>
+  <span class="mdc-list-item__text<%= message.read?"":" unread mdc-theme--primary" %>">
+      <span class="mdc-list-item__primary-text"><%= message.title %></span>
+      <span class="mdc-list-item__secondary-text"><%= new Date(message.time).toLocaleString("zh") %></span>
+  </span>
   <i class="open material-icons mdc-icon-button" title="Open">open_in_new</i>
 </a>
 <hr class="mdc-list-divider">

@@ -1,5 +1,8 @@
 <a href="/application/<%= application.id %>" class="mdc-list-item application<%= (application.score !== undefined || user.role === "association")?"":" unread mdc-theme--primary" %>" data-mdc-auto-init="MDCRipple">
-  <%= application.title %>
+  <span class="mdc-list-item__text">
+      <span class="mdc-list-item__primary-text"><%= application.title %></span>
+      <span class="mdc-list-item__secondary-text"><%= new Date(application.stime).toLocaleString("zh") %></span>
+  </span>
   <i class="open material-icons mdc-icon-button" title="Open">open_in_new</i>
 </a>
 <hr class="mdc-list-divider">

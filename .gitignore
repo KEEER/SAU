@@ -12,6 +12,7 @@ reports.json
 messages.json
 applications.json
 users.json
+home.json
 
 # Runtime data
 pids

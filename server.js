@@ -1,9 +1,6 @@
 const http = require('http');
 const fs = require('fs');
 const url = require('url');
-const ejs = require('ejs');
-const mime = require('mime');
-const etag = require('etag');
 const User = require('./user');
 const utils = require('./utils');
 const Session = require('./session');
@@ -12,60 +9,18 @@ const files = require('./files');
 const Report = require('./report');
 const Application = require('./application');
 const Message = require('./message');
+const Home = require('./home');
 const {vurl} = require("@alan-liang/utils");
 
 //serve static files
-const createCallback = buffer => {
-  //check if `buffer` isn't a buffer
-  //in case of issues with length of Chinese
-  if(!buffer instanceof Buffer) {
-    buffer = Buffer.from(buffer);
-  }
-  const tag=etag(buffer);
-  return (req, resp) => {
-    const {pathname} = url.parse(req.url);
-    if(req.headers["if-none-match"] === tag) {
-      resp.writeHead(304, {ETag:tag});
-      resp.end();
-      return;
-    }
-    let type = mime.getType(pathname.substr(1));
-    if(pathname === "/" || type === "text/html") {
-      type = "text/html; charset=utf8";
-    }
-    resp.writeHead(200, {
-      "Content-Type":type,
-      "Content-Length":buffer.length,
-      ETag:tag
-    });
-    resp.end(buffer);
-  };
-};
 consts.http.staticFiles.forEach(name => {
   const buffer = fs.readFileSync(consts.http.staticDir + name);
-  const cb = createCallback(buffer);
+  const cb = utils.createCallback(buffer);
   vurl.add({
     path:"/" + name,
     func:cb
   });
 });
-
-function redirect(resp, path) {
-  resp.writeHead(302, {"Location":path});
-  resp.end();
-}
-
-function htmlHead(resp, status) {
-  resp.writeHead(status || 200, {"Content-Type":"text/html; charset=utf8"});
-}
-
-function renderFile(path, obj) {
-  obj.require = require;
-  return ejs.renderFile(consts.http.ejsRoot + path, obj, {
-    root:consts.http.ejsRoot,
-    rmWhitespace:true
-  });
-}
 
 //index page
 vurl.add({
@@ -73,11 +28,7 @@ vurl.add({
   func:(req, resp) => {
     const session = new Session(req,resp);
     if(session.get("userid")) {
-      let location = "/home";
-      if(new User(session.get("userid")).messagesReceived.some(msg => !msg.read)) {
-        location = "/messages";
-      }
-      redirect(resp, location);
+      utils.handleLoggedin(req, resp);
       return;
     } else {
       vurl.query("/index.html")(req, resp);
@@ -92,27 +43,19 @@ vurl.add({
     const session = new Session(req, resp);
     const info = await utils.postData(req, true);
     if(session.get("userid")) {
-      let location = "/home";
-      if(new User(session.get("userid")).messagesReceived.some(msg => !msg.read)) {
-        location = "/messages";
-      }
-      redirect(resp, location);
+      utils.handleLoggedin(req, resp);
       return;
     }
     if(!info || !info.userid || !info.passwd) {
-      redirect(resp, "/");
+      utils.redirect(resp, "/");
     }
     const uid = info.userid;
     if(!User.has(uid) || !(new User(uid)).isValidPasswd(info.passwd)) {
-      redirect(resp, "/?invalid");
+      utils.redirect(resp, "/?invalid");
       return;
     }
     session.set("userid",uid);
-    let location = "/home";
-    if(new User(session.get("userid")).messagesReceived.some(msg => !msg.read)) {
-      location = "/messages";
-    }
-    redirect(resp, location);
+    utils.handleLoggedin(req, resp);
   }
 });
 
@@ -121,7 +64,7 @@ vurl.add({
   path:"/logout",
   func:(req, resp) => {
     new Session(req, resp).remove();
-    redirect(resp, "/");
+    utils.redirect(resp, "/");
   }
 });
 
@@ -129,6 +72,7 @@ vurl.add({
 vurl.add({
   regexp:/^\/file\/new\//i,
   func:async (req, resp) => {
+    //no need to auth because files() will handle that
     let id;
     try {
       id = await files(req);
@@ -151,44 +95,34 @@ vurl.add({
 
 const ejsHandlers = {
   "settings":async (req, resp) => {
-    const session = new Session(req, resp);
-    const uid = session.get("userid");
-    if(!uid) {
-      redirect(resp, "/");
-      return;
-    }
+    const user = utils.authenticate(req, resp);
+    if(!user) return;
     let passwd;
     try {
       passwd = await utils.postData(req, true);
     } catch(e) {
-      redirect(resp, "/settings");
+      utils.redirect(resp, "/settings");
       return;
     }
-    const user = new User(uid);
     if(!user.isValidPasswd(passwd.current)) {
-      redirect(resp, "/settings?invalid");
+      utils.redirect(resp, "/settings?invalid");
       return;
     }
     if(passwd.new !== passwd.repeat || !passwd.new) {
-      redirect(resp, "/settings");
+      utils.redirect(resp, "/settings");
       return;
     }
     user.passwd = User.hash(passwd.new, user.generateSalt());
-    redirect(resp, "/settings?ok");
+    utils.redirect(resp, "/settings?ok");
   },
   "report/new":async (req, resp) => {
-    const session = new Session(req, resp);
-    const uid = session.get("userid");
-    if(!uid) {
-      redirect(resp, "/");
-      return;
-    }
-    const user = new User(uid);
+    const user = utils.authenticate(req, resp);
+    if(!user) return;
     let data;
     try {
       data = await utils.postData(req, true);
     } catch(e) {
-      redirect(resp, "/report/new?invalid");
+      utils.redirect(resp, "/report/new?invalid");
       return;
     }
     let valid = true;
@@ -203,26 +137,21 @@ const ejsHandlers = {
       if(!data[el]) valid = false;
     });
     if(!valid) {
-      redirect(resp, "/report/new?invalid");
+      utils.redirect(resp, "/report/new?invalid");
       return;
     }
     data.userid = user.id;
     const report = Report.create(data);
-    redirect(resp, "/report/" + report.id);
+    utils.redirect(resp, "/report/" + report.id);
   },
   "application/new":async (req, resp) => {
-    const session = new Session(req, resp);
-    const uid = session.get("userid");
-    if(!uid) {
-      redirect(resp, "/");
-      return;
-    }
-    const user = new User(uid);
+    const user = utils.authenticate(req, resp);
+    if(!user) return;
     let data;
     try {
       data = await utils.postData(req, true);
     } catch(e) {
-      redirect(resp, "/application/new?invalid");
+      utils.redirect(resp, "/application/new?invalid");
       return;
     }
     let valid = true;
@@ -261,26 +190,21 @@ const ejsHandlers = {
       break;
     }
     if(!valid) {
-      redirect(resp, "/application/new?invalid");
+      utils.redirect(resp, "/application/new?invalid");
       return;
     }
     data.userid = user.id;
     const app = Application.create(data);
-    redirect(resp, "/application/" + app.id);
+    utils.redirect(resp, "/application/" + app.id);
   },
   "message/new":async (req, resp) => {
-    const session = new Session(req, resp);
-    const uid = session.get("userid");
-    if(!uid) {
-      redirect(resp, "/");
-      return;
-    }
-    const user = new User(uid);
+    const user = utils.authenticate(req, resp);
+    if(!user) return;
     let data;
     try {
       data = await utils.postData(req, true);
     } catch(e) {
-      redirect(resp, "/message/new?invalid");
+      utils.redirect(resp, "/message/new?invalid");
       return;
     }
     let valid = true;
@@ -292,12 +216,46 @@ const ejsHandlers = {
       if(!data[el]) valid = false;
     });
     if(!valid) {
-      redirect(resp, "/message/new?invalid");
+      utils.redirect(resp, "/message/new?invalid");
       return;
     }
     data.userid = user.id;
     const message = Message.create(data);
-    redirect(resp, "/message/" + message.id);
+    utils.redirect(resp, "/message/" + message.id);
+  },
+  "home-settings":async (req, resp) => {
+    const user = utils.authenticate(req, resp);
+    if(!user) return;
+    if(user.role !== "admin") {
+      utils.htmlHead(resp, 403);
+      resp.end("403 Forbidden");
+      return;
+    }
+    let data;
+    try {
+      data = await utils.postData(req, true);
+    } catch(e) {
+      utils.redirect(resp, "/home-settings?invalid");
+      return;
+    }
+    let valid = true;
+    [
+      "carousel",
+      "links"
+    ].forEach(el => {
+      if(!data[el]) valid = false;
+      try {
+        Home[el] = JSON.parse(data[el]);
+      } catch(e) {
+        valid = false;
+        console.log(e);
+      }
+    });
+    if(!valid) {
+      utils.redirect(resp, "/home-settings?invalid");
+      return;
+    }
+    utils.redirect(resp, "/home");
   }
 };
 
@@ -310,21 +268,16 @@ consts.http.ejsFiles.forEach(file => {
         if(ejsHandlers[file]) {
           return await ejsHandlers[file](req, resp);
         }
-        htmlHead(resp, 404);
+        utils.htmlHead(resp, 404);
         resp.end(consts.http.errorMessage[404]);
       }
-      const session = new Session(req, resp);
-      const uid = session.get("userid");
-      if(!uid) {
-        redirect(resp, "/");
-        return;
-      }
-      const user = new User(uid);
+      const user = utils.authenticate(req, resp);
+      if(!user) return;
       const associations = User.all.filter(user => {
         return user.role === "association"
       });
-      htmlHead(resp);
-      resp.end(await renderFile(`/${file}.ejs`,{
+      utils.htmlHead(resp);
+      resp.end(await utils.renderFile(`/${file}.ejs`,{
         user,
         associations
       }));
@@ -337,13 +290,8 @@ vurl.add({
   regexp:/^\/report\//i,
   func:async (req, resp) => {
     const id = url.parse(req.url).pathname.split("/").pop().replace(/"/g,"");
-    const session = new Session(req, resp);
-    const uid = session.get("userid");
-    if(!uid) {
-      redirect(resp, "/");
-      return;
-    }
-    const user = new User(uid);
+    const user = utils.authenticate(req, resp);
+    if(!user) return;
     if(!Report.has(id)) {
       resp.writeHead(404, {"Content-Type":"text/plain"});
       resp.end(consts.http.errorMessage[404]);
@@ -351,18 +299,23 @@ vurl.add({
     }
     const report = new Report(id);
     if(req.method !== "GET") {
-      if(user.role === "association") {
-        htmlHead(resp, 403);
+      if(user.role === "association" || user.type === "room") {
+        utils.htmlHead(resp, 403);
         resp.end("403 Forbidden");
         return;
       }
       const data = await utils.postData(req, true);
-      if(!data || !data.score || !data.size) {
-        htmlHead(resp, 400);
+      if(!data || !data.score || !data.size || parseInt(data.score) !== parseInt(data.score)) {
+        utils.htmlHead(resp, 400);
         resp.end("400 Bad Request");
         return;
       }
-      report.score = parseInt(data.score);
+      const score = parseInt(data.score);
+      if(score < (report.score || 0) && user.role !== "admin") {
+        utils.redirect(resp, "?needAdmin");
+        return;
+      }
+      report.score = score;
       report.checkedsize = data.size;
       Message.create({
         userid:user.id,
@@ -370,9 +323,13 @@ vurl.add({
         title:`分数更新提醒`,
         content:`您的活动报告"${report.title}"分数已更新为${report.score}`,
       });
+      if(req.url.indexOf("needAdmin") > -1) {
+        utils.redirect(resp, "?");
+        return;
+      }
     }
-    htmlHead(resp);
-    resp.end(await renderFile("/report/report.ejs", {
+    utils.htmlHead(resp);
+    resp.end(await utils.renderFile("/report/report.ejs", {
       user,
       report
     }));
@@ -384,13 +341,8 @@ vurl.add({
   regexp:/^\/application\//i,
   func:async (req, resp) => {
     const id = url.parse(req.url).pathname.split("/").pop().replace(/"/g,"");
-    const session = new Session(req, resp);
-    const uid = session.get("userid");
-    if(!uid) {
-      redirect(resp, "/");
-      return;
-    }
-    const user = new User(uid);
+    const user = utils.authenticate(req, resp);
+    if(!user) return;
     if(!Application.has(id)) {
       resp.writeHead(404, {"Content-Type":"text/plain"});
       resp.end(consts.http.errorMessage[404]);
@@ -398,15 +350,23 @@ vurl.add({
     }
     const application = new Application(id);
     if(req.method !== "GET") {
-      if(user.role === "association") {
-        htmlHead(resp, 403);
+      if(user.role === "association" || (
+        user.type === "room" &&
+        application.type !== "room"
+      )) {
+        utils.htmlHead(resp, 403);
         resp.end("403 Forbidden");
         return;
       }
       const data = await utils.postData(req, true);
       if(!data || !data.score || !data.reply) {
-        htmlHead(resp, 400);
+        utils.htmlHead(resp, 400);
         resp.end("400 Bad Request");
+        return;
+      }
+      const score = parseInt(data.score);
+      if(score < (application.score || 0) && user.role !== "admin") {
+        utils.redirect(resp, "?needAdmin");
         return;
       }
       application.score = parseInt(data.score);
@@ -417,9 +377,13 @@ vurl.add({
         title:`申请更新提醒`,
         content:`您的申请"${application.title}"已更新，回复为：${application.reply}，扣分为：${application.score}`,
       });
+      if(req.url.indexOf("needAdmin") > -1) {
+        utils.redirect(resp, "?");
+        return;
+      }
     }
-    htmlHead(resp);
-    resp.end(await renderFile("/application/application.ejs", {
+    utils.htmlHead(resp);
+    resp.end(await utils.renderFile("/application/application.ejs", {
       user,
       application
     }));
@@ -431,13 +395,8 @@ vurl.add({
   regexp:/^\/message\//i,
   func:async (req, resp) => {
     const id = url.parse(req.url).pathname.split("/").pop().replace(/"/g,"");
-    const session = new Session(req, resp);
-    const uid = session.get("userid");
-    if(!uid) {
-      redirect(resp, "/");
-      return;
-    }
-    const user = new User(uid);
+    const user = utils.authenticate(req, resp);
+    if(!user) return;
     if(!Message.has(id)) {
       resp.writeHead(404, {"Content-Type":"text/plain"});
       resp.end(consts.http.errorMessage[404]);
@@ -446,20 +405,29 @@ vurl.add({
     const msg = new Message(id);
     if(req.method !== "GET") {
       if(user.role === "association") {
-        htmlHead(resp, 403);
+        utils.htmlHead(resp, 403);
         resp.end("403 Forbidden");
         return;
       }
       const data = await utils.postData(req, true);
       if(!data || !data.score) {
-        htmlHead(resp, 400);
+        utils.htmlHead(resp, 400);
         resp.end("400 Bad Request");
         return;
       }
+      const score = parseInt(data.score);
+      if(score < (msg.score || 0) && user.role !== "admin") {
+        utils.redirect(resp, "?needAdmin");
+        return;
+      }
       msg.score = parseInt(data.score);
+      if(req.url.indexOf("needAdmin") > -1) {
+        utils.redirect(resp, "?");
+        return;
+      }
     }
-    htmlHead(resp);
-    resp.end(await renderFile("/message/message.ejs", {
+    utils.htmlHead(resp);
+    resp.end(await utils.renderFile("/message/message.ejs", {
       user,
       message:msg
     }));
@@ -471,25 +439,20 @@ vurl.add({
   regexp:/^\/association\//i,
   func:async (req, resp) => {
     const id = url.parse(req.url).pathname.split("/").pop().replace(/"/g,"");
-    const session = new Session(req, resp);
-    const uid = session.get("userid");
-    if(!uid) {
-      redirect(resp, "/");
-      return;
-    }
-    const user = new User(uid);
+    const user = utils.authenticate(req, resp);
+    if(!user) return;
     if(!User.has(id)) {
       resp.writeHead(404, {"Content-Type":"text/plain"});
       resp.end(consts.http.errorMessage[404]);
       return;
     }
     if(user.role === "association") {
-      htmlHead(resp, 403);
+      utils.htmlHead(resp, 403);
       resp.end("403 Forbidden");
       return;
     }
-    htmlHead(resp);
-    resp.end(await renderFile("/association/association.ejs", {
+    utils.htmlHead(resp);
+    resp.end(await utils.renderFile("/association/association.ejs", {
       user,
       association:new User(id)
     }));

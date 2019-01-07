@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="zh-CN" dir="ltr">
+  <head>
+    <%- include("/partial/header",{title:"首页管理 | 人大附中社团管理平台"}) %>
+  </head>
+  <body>
+    <%- include("/partial/drawer",{user:user}) %>
+    <%- include("/partial/appbar",{title:"首页管理"}) %>
+    <div id="wrapper" class="mdc-top-app-bar--fixed-adjust">
+      <div id="content-in">
+        <div id="content">
+          <div class="mdc-card">
+          <% if(user.role !== "admin") { %>
+          您无权进入此设置。
+          <% } else { %>
+          <p class="mdc-theme--primary bold">此部分设置请极其小心！错误的设置可能导致主页无法访问！</p>
+          <span>图片请伸缩至同一宽高比后再上传。</span><br />
+          <form method="post">
+            <%- include("/mdc/textarea",{
+              label:"滚动图片",
+              value:JSON.stringify(require("./home").carousel, null, 2),
+              name:"carousel",
+              required:true
+            }) %>
+            <br /><br />
+            <%- include("/mdc/textarea",{
+              label:"公告",
+              value:JSON.stringify(require("./home").links, null, 2),
+              name:"links",
+              required:true
+            }) %>
+            <br /><br />
+            <input type="submit" class="mdc-button mdc-button--raised" data-mdc-auto-init="MDCRipple" value="提交" />
+          </form>
+          <% } %>
+          </div>
+        </div>
+      </div>
+    </div>
+    <%- include("/partial/footer") %>
+    <script>
+    if(location.href.indexOf("invalid") > -1) {
+      snackbar.show({
+        message:"填写不完整",
+        timeout:5000
+      });
+    }
+    </script>
+  </body>
+</html>

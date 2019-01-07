@@ -1,4 +1,4 @@
-<div class="mdc-snackbar"
+<div class="mdc-snackbar mdc-snackbar--align-start"
      aria-live="assertive"
      aria-atomic="true"
      aria-hidden="true"
@@ -12,15 +12,22 @@
 <script>mdc.autoInit();</script>
 <script>
 window.snackbar = document.querySelector(".mdc-snackbar").MDCSnackbar;
+window.drawerEl = document.getElementById('drawer');
+window.drawer = window.drawerEl.MDCDrawer;
 window.onresize = function() {
   var width = window.innerWidth;
   if(width > 720) {
-    document.getElementById('drawer').MDCDrawer.open=!0;
+    drawer.open=!0;
   } else {
-    document.getElementById('drawer').MDCDrawer.open=!1;
+    drawer.open=!1;
   }
 };
+drawerEl.style.transitionDuration = "1ms";
 window.onresize();
+setTimeout(function(){
+  drawerEl.style.transitionDuration = "";
+  document.body.classList.add("ready");
+},100);
 </script>
 <!--div style="display:none;">
   <script src="https://s23.cnzz.com/z_stat.php?id=1275351229&web_id=1275351229" language="JavaScript"></script>

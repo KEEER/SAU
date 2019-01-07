@@ -43,7 +43,7 @@
                 <tr><td class="right">内容</td><td class="content left"><%- escapeFn(application.description).replace(/\n/g,"<br />") %></td></tr>
                 <tr><td class="right">附件</td><td class="left"><%- include("/partial/files",{files:application.files}) %></td></tr>
                 <tr><td class="right">回复</td><td class="left"><%- include("/partial/reply",{application,user}) %></td></tr>
-                <tr><td class="right">扣分</td><td class="left"><%- include("/partial/score",{application,user}) %></td></tr>
+                <tr><td class="right">评分</td><td class="left"><%- include("/partial/score",{application,user}) %></td></tr>
               </table>
               <% if(user.role=="admin"||user.role=="officer"){ %>
                 <br />
@@ -55,5 +55,13 @@
       </div>
     </div>
     <%- include("/partial/footer") %>
+    <script>
+    if(location.href.indexOf("needAdmin") > -1) {
+      snackbar.show({
+        message:"扣分操作需要管理员权限",
+        timeout:5000
+      });
+    }
+    </script>
   </body>
 </html>

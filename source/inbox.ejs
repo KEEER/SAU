@@ -11,9 +11,6 @@
         <div id="content">
           <div class="mdc-card">
             <% switch(user.role) {
-                 case "admin":%>
-            admin
-            <% break;
                case "association":%>
 
                <div class="mdc-tab-bar" data-mdc-auto-init="MDCTabBar" role="tablist">
@@ -52,7 +49,7 @@
                     新建活动报告
                   </a>
                 </p>
-                <div class="mdc-list" data-mdc-auto-init="MDCList">
+                <div class="mdc-list mdc-list--two-line" data-mdc-auto-init="MDCList">
                   <% user.reports.reverse().forEach(report => { %>
                     <%- include("/partial/report-preview",{report:report}); %>
                   <% }); %>
@@ -68,7 +65,7 @@
                     新建申请
                   </a>
                 </p>
-                <div class="mdc-list" data-mdc-auto-init="MDCList">
+                <div class="mdc-list mdc-list--two-line" data-mdc-auto-init="MDCList">
                   <% user.applications.reverse().forEach(app => { %>
                     <%- include("/partial/application-preview",{application:app}); %>
                   <% }); %>
@@ -89,6 +86,7 @@
               </script>
             <% break;
                case "officer":
+               case "admin":
                if(user.type !== "room") { %>
 
                <div class="mdc-tab-bar" data-mdc-auto-init="MDCTabBar" role="tablist">
@@ -118,7 +116,7 @@
                 </div>
               </div>
               <div id="reports" class="tab current">
-                <div class="mdc-list" data-mdc-auto-init="MDCList">
+                <div class="mdc-list mdc-list--two-line" data-mdc-auto-init="MDCList">
                 <% user.reports.sort((msg1, msg2) => {
                   const has1 = msg1.score !== undefined;
                   const has2 = msg2.score !== undefined;
@@ -132,7 +130,7 @@
                 </div>
               </div>
               <div id="applications" class="tab"><% } %>
-                <div class="mdc-list" data-mdc-auto-init="MDCList">
+                <div class="mdc-list mdc-list--two-line" data-mdc-auto-init="MDCList">
                 <% user.applications.sort((msg1, msg2) => {
                   const has1 = msg1.score !== undefined;
                   const has2 = msg2.score !== undefined;

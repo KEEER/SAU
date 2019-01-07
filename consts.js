@@ -13,6 +13,7 @@ const consts = {
     ejsRoot:__dirname+"/source/",
     ejsFiles:[
       "home",
+      "home-settings",
       "inbox",
       "report/new",
       "application/new",
@@ -103,6 +104,9 @@ const consts = {
     idSize:32,
     idEncoding:"hex",
     maxlength:32 * 1024 * 1024 //32MiB, also change source/partial/upload.ejs
+  },
+  home:{
+    file:"home.json"
   }
 };
 const {staticDir,staticFiles} = consts.http;

@@ -17,7 +17,7 @@
               <% associations.filter(assoc => {
                 return user.type === "room" || user.role === "admin" || assoc.type === user.type
               }).forEach(assoc => { %>
-                <a class="mdc-list-item" target="_blank" href="/association/<%= assoc.id %>" data-mdc-auto-init="MDCRipple">
+                <a class="mdc-list-item" href="/association/<%= assoc.id %>" data-mdc-auto-init="MDCRipple">
                   <span class="mdc-list-item__text" style="width: 100%;">
                     <span class="mdc-list-item__primary-text"><%= assoc.name %></span>
                     <span class="mdc-list-item__secondary-text">总分：<%= assoc.score %></span>

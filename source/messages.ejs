@@ -45,7 +45,7 @@
                </div>
              </div>
            </div>
-           <div id="received" class="tab current mdc-list" data-mdc-auto-init="MDCList">
+           <div id="received" class="tab current mdc-list mdc-list--two-line" data-mdc-auto-init="MDCList">
               <% user.messagesReceived.sort((msg1, msg2) => {
                 if(msg1.read === msg2.read) {
                   return (msg1.read ? 1 : -1) * msg2.time - msg1.time;
@@ -55,7 +55,7 @@
                 <%- include("/partial/message-preview",{message}); %>
               <% }); %>
            </div>
-           <div id="sent" class="tab mdc-list" data-mdc-auto-init="MDCList">
+           <div id="sent" class="tab mdc-list mdc-list--two-line" data-mdc-auto-init="MDCList">
              <% user.messagesSent.sort((msg1, msg2) => {
                if(msg1.read === msg2.read) {
                  return (msg1.read ? 1 : -1) * msg2.time - msg1.time;
