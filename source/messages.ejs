@@ -32,7 +32,7 @@
                      </span>
                      <span class="mdc-tab__ripple"></span>
                    </button>
-                   <button id="sent-tab" class="mdc-tab" role="tab" aria-selected="true" tabindex="1">
+                   <button id="sent-tab" class="mdc-tab" role="tab" aria-selected="false" tabindex="1">
                      <span class="mdc-tab__content">
                        <span class="mdc-tab__text-label">我发出的</span>
                      </span>
@@ -41,6 +41,17 @@
                      </span>
                      <span class="mdc-tab__ripple"></span>
                    </button>
+                   <% if(user.role === "admin") { %>
+                   <button id="all-tab" class="mdc-tab" role="tab" aria-selected="false" tabindex="2">
+                     <span class="mdc-tab__content">
+                       <span class="mdc-tab__text-label">所有</span>
+                     </span>
+                     <span class="mdc-tab-indicator">
+                       <span class="mdc-tab-indicator__content mdc-tab-indicator__content--underline"></span>
+                     </span>
+                     <span class="mdc-tab__ripple"></span>
+                   </button>
+                   <% } %>
                  </div>
                </div>
              </div>
@@ -65,18 +76,46 @@
                <%- include("/partial/message-preview",{message}); %>
              <% }); %>
            </div>
+           <% if(user.role === "admin") { %>
+           <div id="all" class="tab current mdc-list mdc-list--two-line" data-mdc-auto-init="MDCList">
+              <% require("./message").all.sort((msg1, msg2) => {
+                if(msg1.read === msg2.read) {
+                  return (msg1.read ? 1 : -1) * msg2.time - msg1.time;
+                }
+                return msg1.read ? 1 : -1;
+              }).forEach(message => { %>
+                <%- include("/partial/message-preview",{message}); %>
+              <% }); %>
+           </div>
+           <% } %>
            <script>
-           var $=function(a){return document.querySelector(a);};
-           var received=$("#received");
-           var sent=$("#sent");
+           var $ = function(a) {return document.querySelector(a);};
+           var received = $("#received");
+           var sent = $("#sent");
+           <% if(user.role === "admin") { %>
+           var all = $("#all");
+           <% } %>
            $("#received-tab").onclick=function(){
              received.classList.add("current");
              sent.classList.remove("current");
+             <% if(user.role === "admin") { %>
+             all.classList.remove("current");
+             <% } %>
            };
            $("#sent-tab").onclick=function(){
              received.classList.remove("current");
              sent.classList.add("current");
+             <% if(user.role === "admin") { %>
+             all.classList.remove("current");
+             <% } %>
            };
+           <% if(user.role === "admin") { %>
+           $("#all-tab").onclick=function(){
+             received.classList.remove("current");
+             sent.classList.remove("current");
+             all.classList.add("current");
+           };
+           <% } %>
            </script>
           </div>
         </div>

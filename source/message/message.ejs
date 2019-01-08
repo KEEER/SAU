@@ -11,9 +11,11 @@
         <div id="content">
           <div class="mdc-card" id="message">
             <h1 class="mdc-typography-headline1"><%= message.title %></h1>
+            <% const isAdmin = user.role === "admin"; %>
             <form method="post">
               <table>
-                <tr><td class="right" style="min-width:32px;">来自</td><td class="left"><%= message.from %></td></tr>
+                <tr><td class="right" style="min-width:32px;">来自</td><td class="left"><%= isAdmin ? message.user.name : message.from %></td></tr>
+                <tr><td class="right">送至</td><td class="left"><%= isAdmin ? (new (require("./user"))(message.get("to"))).name : message.to %></td></tr>
                 <tr><td class="right">时间</td><td class="left"><%= new Date(message.time).toLocaleString("zh") %></td></tr>
                 <tr><td class="right">内容</td><td class="content left"><%- escapeFn(message.content).replace(/\n/g,"<br />") %></td></tr>
                 <% if(message.to !== "admin" && message.to !== "officer") { %>

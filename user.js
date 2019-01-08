@@ -91,6 +91,14 @@ class User{
     this.set("name", name);
   }
 
+  get contact() {
+    return this.get("contact");
+  }
+
+  set contact(contact) {
+    this.set("contact", contact);
+  }
+
   get salt() {
     return this.get("salt");
   }
