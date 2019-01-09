@@ -109,7 +109,7 @@ class Utils{
   }
   logEvent(user, name, details) {
     const uid = user.id;
-    const log = (`[${new Date()}] ${uid} ${name}: ${details}\n`);
+    const log = (`[${new Date().toLocaleString()}] ${uid} ${name}: ${details}\n`);
     fs.appendFile(consts.event.logFile, log, () => {});
   }
   get eventLog() {

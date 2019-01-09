@@ -1,6 +1,6 @@
 const fs = require('fs');
 const consts = {
-  version:"0.1.31",
+  version:"0.1.32",
   http:{
     logFile:"access.log",
     realIpHeader:"x-real-ip",
