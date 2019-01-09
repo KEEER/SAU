@@ -1,6 +1,6 @@
 const fs = require('fs');
 const consts = {
-  version:"0.1.30",
+  version:"0.1.31",
   http:{
     logFile:"access.log",
     realIpHeader:"x-real-ip",
@@ -24,7 +24,8 @@ const consts = {
       "settings",
       "messages",
       "about",
-      "associations"
+      "associations",
+      "events"
     ],
     errorMessage:{
       501:"The server has encountered some strange error. Maybe a monster ate the server?",
@@ -35,7 +36,8 @@ const consts = {
     file:"session.json",
     name:"sau-sessid",
     length:64,
-    expires:20 * 60 * 1000 // 20 min
+    expires:20 * 60 * 1000, // 20 min,
+    clearTimeout:10 * 60 * 1000 //20 min
   },
   user:{
     file:"users.json",
@@ -110,6 +112,9 @@ const consts = {
   },
   home:{
     file:"home.json"
+  },
+  event:{
+    logFile:"events.log"
   }
 };
 const {staticDir,staticFiles} = consts.http;

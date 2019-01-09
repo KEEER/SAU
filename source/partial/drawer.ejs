@@ -36,6 +36,12 @@
         <i class="material-icons mdc-list-item__graphic">lock</i>
         <div class="mdc-list-item-content">修改密码</div>
       </a>
+      <% if(user.role === "admin") { %>
+        <a href="/events" class="mdc-list-item mdc-ripple" data-mdc-auto-init="MDCRipple">
+          <i class="material-icons mdc-list-item__graphic" aria-hidden="true">warning</i>
+          <div class="mdc-list-item-content">系统日志</div>
+        </a>
+      <% } %>
       <a href="/logout" class="mdc-list-item mdc-ripple" data-mdc-auto-init="MDCRipple">
         <i class="material-icons mdc-list-item__graphic">exit_to_app</i>
         <div class="mdc-list-item-content">退出</div>

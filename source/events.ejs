@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="zh-CN" dir="ltr">
+  <head>
+    <%- include("/partial/header",{title:"系统日志 | 人大附中社团管理平台"}) %>
+  </head>
+  <body>
+    <%- include("/partial/drawer",{user:user}) %>
+    <%- include("/partial/appbar",{title:"系统日志"}) %>
+    <div id="wrapper" class="mdc-top-app-bar--fixed-adjust">
+      <div id="content-in">
+        <div id="content">
+          <div class="mdc-card left" style="font-family: Monaco, Consolas, monospace;">
+          <% if(user.role !== "admin") { %>
+          您无权进入此设置。
+          <% } else { %>
+          <%- escapeFn(log).replace(/ /g, "&nbsp;").replace(/\n/g,"<br />") %>
+          <% } %>
+          </div>
+        </div>
+        <script>
+        (function(a){a.scrollTo(0, a.scrollHeight)})(document.querySelector(".mdc-card"));
+        </script>
+      </div>
+    </div>
+    <%- include("/partial/footer") %>
+  </body>
+</html>

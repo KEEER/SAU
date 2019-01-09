@@ -5,8 +5,8 @@ const mime = require('mime');
 const etag = require('etag');
 const ejs = require('ejs');
 const consts = require('./consts');
-const Session = require('./session');
 const User = require('./user');
+const {promisify} = require('util');
 
 class Utils{
   constructor(){}
@@ -107,5 +107,16 @@ class Utils{
       console.error(e.stack || e);
     }
   }
+  logEvent(user, name, details) {
+    const uid = user.id;
+    const log = (`[${new Date()}] ${uid} ${name}: ${details}\n`);
+    fs.appendFile(consts.event.logFile, log, () => {});
+  }
+  get eventLog() {
+    return promisify(fs.readFile)(consts.event.logFile);
+  }
 }
 module.exports = new Utils();
+
+//require('./session') at last to prevent cross-require()ing
+const Session = require('./session');

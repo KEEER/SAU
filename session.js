@@ -1,6 +1,7 @@
 const cookie = require('cookie');
 const fs = require('fs');
 const crypto =  require('crypto');
+const utils = require('./utils');
 const consts = require('./consts').session;
 
 let _data;
@@ -79,3 +80,18 @@ try{
 }
 
 module.exports = Session;
+
+//clean sessions
+const clear = () => {
+  let count = 0;
+  for(let id in Session.data) {
+    if(!Session.hasId(id)) { //expired
+      delete Session.data[id];
+      count++;
+    }
+  }
+  utils.logEvent({id:"[[Server]]"}, "session:clear", `Cleared ${count} expired sessions`);
+  update();
+};
+setInterval(clear, consts.clearTimeout);
+clear();

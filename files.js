@@ -4,6 +4,7 @@ const crypto = require('crypto');
 const Session = require('./session');
 const {promisify} = require('util');
 const fs = require('fs');
+const User = require('./user');
 const consts = require('./consts').files;
 
 const writeFile = promisify(fs.writeFile);
@@ -42,6 +43,7 @@ module.exports = (req, resp) => {
           resp.end("401 Unauthorized");
           return;
         }
+        utils.logEvent(new User(obj.userid), "file:delete", `Deleted file ${_data[id].name} (${id})`);
         delete _data[id];
         await writeFile(consts.file, JSON.stringify(_data));
         await unlink(consts.dir + id + consts.ext);
@@ -74,6 +76,7 @@ module.exports = (req, resp) => {
         length:data.length,
         userid:session.get("userid")
       };
+      utils.logEvent(new User(session.get("userid")), "file:new", `Uploaded file ${_data[id].name} (${id})`);
       await writeFile(consts.dir + id + consts.ext, data);
       await writeFile(consts.file, JSON.stringify(_data));
       return id;

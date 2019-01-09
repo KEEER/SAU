@@ -25,16 +25,15 @@ class Message{
   }
 
   get to() {
-    const toUser = new User(this.get("to"));
-    switch(toUser.role) {
-      case "association":
-      return toUser.name;
-
+    switch(this.get("to")) {
       case "officer":
       return "干事";
 
       case "admin":
       return "管理员";
+
+      default:
+      return (new User(this.get("to"))).name;
     }
   }
 

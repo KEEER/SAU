@@ -55,6 +55,7 @@ vurl.add({
       return;
     }
     session.set("userid",uid);
+    utils.logEvent(new User(uid), "user:login", "Logged in");
     utils.handleLoggedin(req, resp);
   }
 });
@@ -63,7 +64,9 @@ vurl.add({
 vurl.add({
   path:"/logout",
   func:(req, resp) => {
-    new Session(req, resp).remove();
+    const session = new Session(req, resp);
+    utils.logEvent({id:session.get("userid")}, "user:logout", "Logged out");
+    session.remove();
     utils.redirect(resp, "/");
   }
 });
@@ -114,6 +117,7 @@ const ejsHandlers = {
     }
     user.passwd = User.hash(passwd.new, user.generateSalt());
     utils.redirect(resp, "/settings?ok");
+    utils.logEvent(user, "user:passwd", "Changed password");
   },
   "report/new":async (req, resp) => {
     const user = utils.authenticate(req, resp);
@@ -142,6 +146,7 @@ const ejsHandlers = {
     }
     data.userid = user.id;
     const report = Report.create(data);
+    utils.logEvent(user, "report:new", `Created report ${report.id}:\n${JSON.stringify(data, null, 2)}`);
     utils.redirect(resp, "/report/" + report.id);
   },
   "application/new":async (req, resp) => {
@@ -195,6 +200,7 @@ const ejsHandlers = {
     }
     data.userid = user.id;
     const app = Application.create(data);
+    utils.logEvent(user, "application:new", `Created application ${app.id}:\n${JSON.stringify(data, null, 2)}`);
     utils.redirect(resp, "/application/" + app.id);
   },
   "message/new":async (req, resp) => {
@@ -221,6 +227,7 @@ const ejsHandlers = {
     }
     data.userid = user.id;
     const message = Message.create(data);
+    utils.logEvent(user, "message:new", `Created message ${message.id}:\n${JSON.stringify(data, null, 2)}`);
     utils.redirect(resp, "/message/" + message.id);
   },
   "home-settings":async (req, resp) => {
@@ -255,6 +262,7 @@ const ejsHandlers = {
       utils.redirect(resp, "/home-settings?invalid");
       return;
     }
+    utils.logEvent(user, "home:change", `Updated home settings to:\n${JSON.stringify(data, null, 2)}`);
     utils.redirect(resp, "/home");
   }
 };
@@ -276,10 +284,15 @@ consts.http.ejsFiles.forEach(file => {
       const associations = User.all.filter(user => {
         return user.role === "association"
       });
+      let log;
+      if(file === "events") {
+        log = await utils.eventLog;
+      }
       utils.htmlHead(resp);
       resp.end(await utils.renderFile(`/${file}.ejs`,{
         user,
-        associations
+        associations,
+        log
       }));
     }
   });
@@ -323,6 +336,7 @@ vurl.add({
         title:`分数更新提醒`,
         content:`您的活动报告"${report.title}"分数已更新为${report.score}`,
       });
+      utils.logEvent(user, "report:alter", `Modified report ${report.id}:\n${JSON.stringify(data, null, 2)}`);
       if(req.url.indexOf("needAdmin") > -1) {
         utils.redirect(resp, "?");
         return;
@@ -377,6 +391,7 @@ vurl.add({
         title:`申请更新提醒`,
         content:`您的申请"${application.title}"已更新，回复为：${application.reply}，扣分为：${application.score}`,
       });
+      utils.logEvent(user, "application:alter", `Modified application ${application.id}:\n${JSON.stringify(data, null, 2)}`);
       if(req.url.indexOf("needAdmin") > -1) {
         utils.redirect(resp, "?");
         return;
@@ -421,6 +436,7 @@ vurl.add({
         return;
       }
       msg.score = parseInt(data.score);
+      utils.logEvent(user, "message:alter", `Modified message ${msg.id}:\n${JSON.stringify(data, null, 2)}`);
       if(req.url.indexOf("needAdmin") > -1) {
         utils.redirect(resp, "?");
         return;
@@ -472,6 +488,7 @@ const server = http.createServer(async (req, resp) => {
     }catch(e){
       try{
         utils.logRequest(req, resp, e);
+        utils.logEvent({id:"[[Server]]"}, "server:error", e.stack || e);
         resp.writeHead(501, {"Content-Type":"text/plain"});
         resp.end(consts.http.errorMessage[501]);
         return;
