@@ -180,6 +180,19 @@ html,body{
   vertical-align: middle;
 }
 
+#users table{
+  border: 1px solid #ccc;
+  border-spacing: 0;
+}
+
+#users td{
+  border-top: 1px solid #ccc;
+}
+
+#users tr{
+  height: 50px;
+}
+
 /* Fix MDC bug */
 .mdc-theme--secondary.mdc-text-field--outlined:not(.mdc-text-field--disabled).mdc-text-field--focused .mdc-notched-outline__leading,
 .mdc-theme--secondary.mdc-text-field--outlined:not(.mdc-text-field--disabled).mdc-text-field--focused .mdc-notched-outline__notch,

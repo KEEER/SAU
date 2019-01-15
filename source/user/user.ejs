@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="zh-CN" dir="ltr">
+  <head>
+    <%- include("/partial/header",{title:_user.name + " | 用户 | 人大附中社团管理平台"}) %>
+  </head>
+  <body>
+    <%- include("/partial/drawer",{user}) %>
+    <%- include("/partial/appbar",{title:_user.name + " | 用户"}) %>
+    <div id="wrapper" class="mdc-top-app-bar--fixed-adjust">
+      <div id="content-in">
+        <div id="content">
+          <div class="mdc-card" id="user">
+            <h1 class="mdc-typography-headline1"><%= _user.name %></h1>
+            <form method="post">
+              <%- include("/mdc/input", {label:"uid", name:"id", value: _user.id, required:true}) %>
+              <%- include("/mdc/input", {label:"显示名", name:"name", value: _user.name, required:true}) %>
+              <%- include("/mdc/input", {label:"密码(留空以保持原状)", name:"passwd", type:"password"}) %>
+              <div class="left mdc-typography--body1">
+                类型(不可更改): <%= {
+                  admin:"管理员",
+                  officer:"干事",
+                  association:"社团"
+                }[_user.role] %>
+              </div>
+              <br />
+              <% if(_user.role !== "admin") { %>
+              <%- include("/mdc/select",{
+                label:"类别",
+                name:"type",
+                required:true,
+                options:require("./consts")
+                        .user
+                        .types
+                        .map(type => {
+                          return {
+                            label:require("./consts").user.typesReverse[type],
+                            value:type
+                          }
+                        }),
+                value:_user.type
+              }) %>
+              <% } %>
+              <% if(_user.role === "association") { %>
+                请谨慎更改此项！
+                <%- include("/mdc/textarea", {
+                  label:"联系方式(JSON)",
+                  name:"contact",
+                  required:true,
+                  value:_user.contact ? JSON.stringify(_user.contact, null, 2) : ""
+                }) %>
+              <% } %>
+              <br />
+              <input type="submit" class="mdc-button mdc-button--raised" data-mdc-auto-init="MDCRipple" value="提交更改" />
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+    <%- include("/partial/footer") %>
+    <% if(typeof error !== "undefined") { %>
+    <script>
+    snackbar.labelText = "<%= error %>";
+    snackbar.open();
+    </script>
+    <% } %>
+  </body>
+</html>

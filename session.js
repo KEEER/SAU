@@ -12,6 +12,10 @@ function update() {
 
 class Session{
   constructor(req, resp) {
+    if(typeof req === typeof "") {
+      this.id = req;
+      return;
+    }
     const cookies = req.headers.cookie || "";
     const sessid = this.id = cookie.parse(cookies)[consts.name];
     if(!Session.hasId(sessid)) {
@@ -71,6 +75,16 @@ class Session{
       _data = data;
     });
   }
+
+  static get all() {
+    const result = [];
+    for(let id in Session.data) {
+      if(Session.hasId(id)) {
+        result.push(new Session(id));
+      }
+    }
+    return result;
+  }
 }
 
 try{
@@ -90,7 +104,7 @@ const clear = () => {
       count++;
     }
   }
-  utils.logEvent({id:"[[Server]]"}, "session:clear", `Cleared ${count} expired sessions`);
+  if(count) utils.logEvent({id:"[[Server]]"}, "session:clear", `Cleared ${count} expired session(s)`);
   update();
 };
 setInterval(clear, consts.clearTimeout);

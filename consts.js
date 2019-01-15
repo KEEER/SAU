@@ -1,6 +1,6 @@
 const fs = require('fs');
 const consts = {
-  version:"0.1.32",
+  version:"0.1.33",
   http:{
     logFile:"access.log",
     realIpHeader:"x-real-ip",
@@ -25,7 +25,9 @@ const consts = {
       "messages",
       "about",
       "associations",
-      "events"
+      "events",
+      "users",
+      "user/new"
     ],
     errorMessage:{
       501:"The server has encountered some strange error. Maybe a monster ate the server?",
@@ -56,6 +58,16 @@ const consts = {
       "activity", //活动
       "room" //定教室
     ],
+    typesReverse:{
+      "voluntary":"公益",
+      "academic":"学术",
+      "scitech":"科技",
+      "culture":"文化",
+      "art":"艺术",
+      "sports":"体育",
+      "activity":"活动",
+      "room":"定教室"
+    },
     hashMethod:"sha256",
     encoding:"base64",
     saltSize:64,
@@ -75,7 +87,12 @@ const consts = {
         name:"xx社",
         id:"xxclub",
         type:"voluntary",
-        passwd:"shetuan"
+        passwd:"shetuan",
+        contact:{
+          "社长":"班级 姓名 10086",
+          "副社长1":"班级 姓名 110",
+          "副社长2":"班级 姓名 911"
+        }
       }
     }
   },
@@ -90,17 +107,6 @@ const consts = {
   message:{
     file:"messages.json",
     length:16
-  },
-  association:{
-    types:{
-      "voluntary":"公益",
-      "academic":"学术",
-      "scitech":"科技",
-      "culture":"文化",
-      "art":"艺术",
-      "sports":"体育",
-      "activity":"活动"
-    }
   },
   files:{
     dir:__dirname + "/files/",

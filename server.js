@@ -264,7 +264,56 @@ const ejsHandlers = {
     }
     utils.logEvent(user, "home:change", `Updated home settings to:\n${JSON.stringify(data, null, 2)}`);
     utils.redirect(resp, "/home");
-  }
+  },
+  "user/new":async (req, resp) => {
+    const user = utils.authenticate(req, resp);
+    if(!user) return;
+    if(user.role !== "admin") {
+      utils.htmlHead(resp, 403);
+      resp.end("403 Forbidden");
+      return;
+    }
+    let data;
+    try {
+      data = await utils.postData(req, true);
+    } catch(e) {
+      utils.redirect(resp, "/user/new?invalid");
+      return;
+    }
+    let valid = true;
+    [
+      "id",
+      "name",
+      "role",
+      "passwd"
+    ].forEach(el => {
+      if(!data[el]) valid = false;
+    });
+    if(User.has(data.id)) valid = false;
+    if(!["admin", "officer", "association"].some(role => role === data.role)) {
+      valid = false;
+    }
+    switch(data.role) {
+      case "admin":
+      break;
+
+      default:
+      if(!consts.user.types.some(type => type === data.type)) {
+        valid = false;
+      }
+      break;
+    }
+    if(data.role === "association" && data.type === "room") {
+      valid = false;
+    }
+    if(!valid) {
+      utils.redirect(resp, "/user/new?invalid");
+      return;
+    }
+    const _user = User.create(data);
+    utils.logEvent(user, "user:new", `Created user ${_user.id}:\n${JSON.stringify(data, null, 2)}`);
+    utils.redirect(resp, "/user/" + _user.id);
+  },
 };
 
 //ejs files
@@ -336,7 +385,7 @@ vurl.add({
         title:`分数更新提醒`,
         content:`您的活动报告"${report.title}"分数已更新为${report.score}`,
       });
-      utils.logEvent(user, "report:alter", `Modified report ${report.id}:\n${JSON.stringify(data, null, 2)}`);
+      utils.logEvent(user, "report:edit", `Modified report ${report.id}:\n${JSON.stringify(data, null, 2)}`);
       if(req.url.indexOf("needAdmin") > -1) {
         utils.redirect(resp, "?");
         return;
@@ -391,7 +440,7 @@ vurl.add({
         title:`申请更新提醒`,
         content:`您的申请"${application.title}"已更新，回复为：${application.reply}，扣分为：${application.score}`,
       });
-      utils.logEvent(user, "application:alter", `Modified application ${application.id}:\n${JSON.stringify(data, null, 2)}`);
+      utils.logEvent(user, "application:edit", `Modified application ${application.id}:\n${JSON.stringify(data, null, 2)}`);
       if(req.url.indexOf("needAdmin") > -1) {
         utils.redirect(resp, "?");
         return;
@@ -436,7 +485,7 @@ vurl.add({
         return;
       }
       msg.score = parseInt(data.score);
-      utils.logEvent(user, "message:alter", `Modified message ${msg.id}:\n${JSON.stringify(data, null, 2)}`);
+      utils.logEvent(user, "message:edit", `Modified message ${msg.id}:\n${JSON.stringify(data, null, 2)}`);
       if(req.url.indexOf("needAdmin") > -1) {
         utils.redirect(resp, "?");
         return;
@@ -472,6 +521,129 @@ vurl.add({
       user,
       association:new User(id)
     }));
+  }
+});
+
+//Users
+vurl.add({
+  regexp:/^\/user\//i,
+  func:async (req, resp) => {
+    const id = url.parse(req.url).pathname.split("/").pop().replace(/"/g,"");
+    const user = utils.authenticate(req, resp);
+    if(!user) return;
+    if(!User.has(id)) {
+      resp.writeHead(404, {"Content-Type":"text/plain"});
+      resp.end(consts.http.errorMessage[404]);
+      return;
+    }
+    if(user.role !== "admin") {
+      utils.htmlHead(resp, 403);
+      resp.end("403 Forbidden");
+      return;
+    }
+    switch(req.method) {
+      case "GET":
+      utils.htmlHead(resp);
+      resp.end(await utils.renderFile("/user/user.ejs", {
+        user,
+        _user:new User(id)
+      }));
+      return;
+
+      case "POST":
+      const data = await utils.postData(req, true);
+      let error = "";
+      if(!data) {
+        resp.htmlHead(resp, 400);
+        resp.end();
+      }
+      [
+        "id",
+        "name"
+      ].forEach(el => {
+        if(!data[el]) error += `${el} 未填写;`;
+      });
+      const _user = new User(id);
+      switch(_user.role) {
+        case "admin":
+        break;
+
+        default:
+        if(!consts.user.types.some(type => type === data.type)) {
+          error += "类别不合法;";
+        }
+        break;
+      }
+      let contact = null;
+      if(_user.role === "association") {
+        try {
+          contact = JSON.parse(data.contact);
+        } catch(e) {
+          error += "联系方式格式错误;";
+        }
+      }
+      if(data.id !== id && User.has(data.id)) { //ID Collision
+        error += "uid撞上了;";
+      }
+      if(error) {
+        utils.htmlHead(resp);
+        resp.end(await utils.renderFile("/user/user.ejs", {
+          user,
+          error,
+          _user:new User(id)
+        }));
+      } else {
+        if(id !== data.id) { //Modify all related materials
+          Application.
+            getApplicationsById(id).
+            concat(Report.getReportsById(id)).
+            concat(Message.getMessagesByAuthorId(id)).
+            forEach(el => {
+              el.userid = data.id;
+            });
+          Session.all.forEach(session => {
+            if(session.get("userid") === id) {
+              session.set("userid", data.id);
+            }
+          });
+          if(_user.role === "association") {
+            Message.getMessagesById(id).forEach(msg => {
+              msg.to = data.id;
+            });
+          }
+          User.data[data.id] = User.data[id];
+          delete User.data[id];
+          _user.id = data.id;
+        }
+        [
+          "name",
+          "role",
+          "type"
+        ].forEach(el => {
+          if(data[el]) {
+            _user[el] = data[el];
+          }
+        });
+        if(contact) {
+          _user.contact = contact;
+        }
+        if(data.passwd) {
+          _user.passwd = User.hash(data.passwd, _user.generateSalt());
+          data.passwd = "[[Removed]]";
+        }
+        utils.logEvent(user, "user:edit", `Modified user ${id}:\n${JSON.stringify(data, null, 2)}`);
+        if(id === data.id) {
+          utils.htmlHead(resp);
+          resp.end(await utils.renderFile("/user/user.ejs", {
+            user,
+            _user:new User(data.id)
+          }));
+        } else {
+          utils.redirect(resp, `/user/${data.id}`);
+        }
+      }
+      return;
+    }
   }
 });
 

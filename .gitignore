@@ -4,7 +4,7 @@ logs
 *.log
 npm-debug.log*
 
-#storage
+# storage
 session.json
 files/*.file
 files.json
@@ -13,6 +13,9 @@ messages.json
 applications.json
 users.json
 home.json
+
+# backups
+_backup.*
 
 # Runtime data
 pids

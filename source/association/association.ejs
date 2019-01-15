@@ -12,7 +12,7 @@
           <div class="mdc-card" id="message">
             <h1 class="mdc-typography-headline1"><%= association.name %></h1>
             <table>
-              <tr><td class="right" style="min-width:32px;">类型</td><td class="left"><%= require("./consts").association.types[association.type] %></td></tr>
+              <tr><td class="right" style="min-width:32px;">类型</td><td class="left"><%= require("./consts").user.typesReverse[association.type] %></td></tr>
               <tr><td class="right">总分</td><td class="left"><%= association.score %></td></tr>
               <tr><td class="right">联系方式</td><td class="left">
                 <% for(let i in association.contact) { %>

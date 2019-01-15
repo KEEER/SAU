@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="zh-CN" dir="ltr">
+  <head>
+    <%- include("/partial/header",{title:"新建用户 | 人大附中社团管理平台"}) %>
+  </head>
+  <body>
+    <%- include("/partial/drawer",{user:user}) %>
+    <%- include("/partial/appbar",{title:"新建用户"}) %>
+    <div id="wrapper" class="mdc-top-app-bar--fixed-adjust">
+      <div id="content-in">
+        <div id="content">
+          <div class="mdc-card left" id="application-new">
+            <% switch(user.role) {
+               case "admin":%>
+            <form action="/user/new" method="post">
+            <%- include("/mdc/input",{label:"uid",name:"id",required:true}) %>
+            <%- include("/mdc/input",{label:"显示名",name:"name",required:true}) %>
+            <%- include("/mdc/input",{label:"密码",type:"password",name:"passwd",required:true}) %>
+            <%- include("/mdc/select",{label:"类型",name:"role",required:true,options:[{label:"管理员",value:"admin"},{label:"干事",value:"officer"},{label:"社团",value:"association"}]}) %>
+            <span id="detail">
+              <span id="admin" hidden>
+              </span>
+              <span id="others" hidden>
+                <%- include("/mdc/select",{
+                  label:"类别",
+                  name:"type",
+                  required:true,
+                  options:require("./consts")
+                          .user
+                          .types
+                          .map(type => {
+                            return {
+                              label:require("./consts").user.typesReverse[type],
+                              value:type
+                            }
+                          })
+                }) %>
+              </span>
+            </span>
+            <input type="submit" class="mdc-button mdc-button--raised" data-mdc-auto-init="MDCRipple" value="提交" />
+            </form>
+            <% break;
+               default:%>
+            您的身份不可以新建申请。
+            <% break;
+              } %>
+          </div>
+        </div>
+      </div>
+    </div>
+    <%- include("/partial/footer") %>
+    <script>
+    var $ = function(a){return document.querySelector(a)};
+    var admin = $("#admin");
+    var others = $("#others");
+    var detail = $("#detail");
+    detail.removeChild(admin);
+    detail.removeChild(others);
+    others.removeAttribute("hidden");
+    admin.removeAttribute("hidden");
+    var role = $("#role").MDCSelect;
+    role.listen("MDCSelect:change",function(){
+      try {
+        if(role.value === "admin") {
+          detail.appendChild(admin);
+          detail.removeChild(others);
+          return;
+        } else {
+          detail.appendChild(others);
+          detail.removeChild(admin);
+        }
+      } catch(e) {}
+    });
+    if(location.href.indexOf("invalid") > -1) {
+      snackbar.labelText = "填写不完整";
+      snackbar.open();
+    }
+    </script>
+  </body>
+</html>

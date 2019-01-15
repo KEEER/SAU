@@ -100,7 +100,10 @@ class Utils{
   logRequest(req, resp, e) {
     const path = url.parse(req.url).pathname;
     const ip = req.headers[consts.http.realIpHeader] || req.socket.address().address;
-    const uid = (new Session(req, resp)).get("userid");
+    let uid = "unknown";
+    try {
+      uid = (new Session(req, resp)).get("userid");
+    } catch(e) {}
     const log = (`${ip} ${uid} ${req.method} ${path}: ${resp.statusCode}\n${new Date()} ${req.headers["user-agent"]}\n`);
     fs.appendFile(consts.http.logFile, log, () => {});
     if(e) {
