@@ -12,6 +12,7 @@
           <div class="mdc-card" id="user">
             <h1 class="mdc-typography-headline1"><%= _user.name %></h1>
             <form method="post">
+              <%- include("/partial/csrf") %>
               <%- include("/mdc/input", {label:"uid", name:"id", value: _user.id, required:true}) %>
               <%- include("/mdc/input", {label:"显示名", name:"name", value: _user.name, required:true}) %>
               <%- include("/mdc/input", {label:"密码(留空以保持原状)", name:"passwd", type:"password"}) %>

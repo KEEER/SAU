@@ -13,7 +13,11 @@
           <div class="mdc-card">
             <div class="main-carousel" data-flickity='{ "autoPlay": true }'>
               <% require("./home").carousel.forEach(el => { %>
-              <div class="carousel-cell"><a target="_blank" href="<%= el.link %>"><img src="<%= el.img %>" /></a></div>
+              <div class="carousel-cell">
+                <a target="_blank" href="<%= el.link %>">
+                  <img onload="window.dispatchEvent(new Event('resize'))" src="<%= el.img %>" />
+                </a>
+              </div>
               <% }); %>
             </div>
             <br />
