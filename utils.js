@@ -6,7 +6,6 @@ const mime = require('mime');
 const etag = require('etag');
 const ejs = require('ejs');
 const consts = require('./consts');
-const User = require('./user');
 const {promisify} = require('util');
 
 class Utils{
@@ -146,3 +145,4 @@ module.exports = new Utils();
 
 //require('./session') at last to prevent cross-require()ing
 const Session = require('./session');
+const User = require('./user');

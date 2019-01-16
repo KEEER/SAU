@@ -2,12 +2,7 @@ const fs = require('fs');
 const crypto = require('crypto');
 const User = require('./user');
 const consts = require('./consts').report;
-
-let _data;
-
-function update() {
-  Report.data = Report.data;
-}
+const DB = require('./db');
 
 class Report{
   constructor(id) {
@@ -16,12 +11,12 @@ class Report{
   }
 
   get(k) {
-    return Report.data[this.id][k];
+    return Report.db.data[this.id][k];
   }
 
   set(k, v) {
-    Report.data[this.id][k] = v;
-    update();
+    Report.db.data[this.id][k] = v;
+    Report.db.update();
   }
 
   get user() {
@@ -117,7 +112,7 @@ class Report{
   }
 
   static add(obj) {
-    Report.data[obj.id] = obj;
+    Report.db.data[obj.id] = obj;
     update();
     return new Report(obj.id);
   }
@@ -130,7 +125,7 @@ class Report{
   }
 
   static has(id) {
-    return (id in Report.data);
+    return (id in Report.db.data);
   }
 
   static createId(){
@@ -138,30 +133,15 @@ class Report{
     if(Report.has(id)) {
       return Report.createId();
     }
-    delete Report.data[id];
-    update();
+    delete Report.db.data[id];
+    Report.db.update();
     return id;
-  }
-
-  static get data() {
-    return _data;
-  }
-
-  static set data(data) {
-    if(!_data){
-      _data = data;
-      return;
-    }
-    fs.writeFile(consts.file, JSON.stringify(data), (err) => {
-      if (err) console.error(err);
-      _data = data;
-    });
   }
 
   static getReportsById(id) {
     const reports = [];
-    for(let i in Report.data) {
-      if(Report.data[i].userid === id) {
+    for(let i in Report.db.data) {
+      if(Report.db.data[i].userid === id) {
         reports.push(new Report(i));
       }
     }
@@ -170,7 +150,7 @@ class Report{
 
   static getReportsByType(type) {
     const reports = [];
-    for(let i in Report.data) {
+    for(let i in Report.db.data) {
       const report = new Report(i);
       if(report.user.type === type) {
         reports.push(report);
@@ -181,17 +161,13 @@ class Report{
 
   static get all() {
     const reports = [];
-    for(let i in Report.data) {
+    for(let i in Report.db.data) {
       reports.push(new Report(i));
     }
     return reports;
   }
 }
 
-try{
-  Report.data = JSON.parse(fs.readFileSync(consts.file).toString());
-}catch(e){
-  Report.data = {};
-}
+Report.db = new DB(consts.file);
 
 module.exports = Report;

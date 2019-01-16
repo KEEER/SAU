@@ -1,10 +1,10 @@
 const fs = require('fs');
 const consts = {
-  version:"0.1.34",
+  version:"0.1.35",
   http:{
     logFile:"access.log",
     realIpHeader:"x-real-ip",
-    port: 50082,
+    port:50082,
     staticDir:__dirname+"/source/",
     staticFiles:[
       "index.html",
@@ -123,6 +123,9 @@ const consts = {
   },
   event:{
     logFile:"events.log"
+  },
+  db:{
+    saveInterval:5000 //5 secs
   }
 };
 const {staticDir,staticFiles} = consts.http;

@@ -2,12 +2,6 @@ const fs = require('fs');
 const crypto = require('crypto');
 const consts = require('./consts').user;
 
-let _data;
-
-function update() {
-  User.data = User.data;
-}
-
 class User{
   constructor(id) {
     if(!User.has(id)) throw new Error("User not exist");
@@ -15,12 +9,12 @@ class User{
   }
 
   get(k) {
-    return User.data[this.id][k];
+    return User.db.data[this.id][k];
   }
 
   set(k, v) {
-    User.data[this.id][k] = v;
-    update();
+    User.db.data[this.id][k] = v;
+    User.db.update();
   }
 
   // TODO: score, reports, apps & msgs
@@ -178,8 +172,8 @@ class User{
   }
 
   static add(obj) {
-    User.data[obj.id] = obj;
-    update();
+    User.db.data[obj.id] = obj;
+    User.db.update();
     return new User(obj.id);
   }
 
@@ -195,40 +189,36 @@ class User{
   }
 
   static has(id) {
-    return (id in User.data);
+    return (id in User.db.data);
   }
 
   static get data() {
-    return _data;
+    return User.db.data;
   }
 
   static set data(data) {
-    if(!_data){
-      _data = data;
+    if(!User.db.data){
+      User.db.data = data;
       return;
     }
     fs.writeFile(consts.file, JSON.stringify(data), (err) => {
       if (err) console.error(err);
-      _data = data;
+      User.db.data = data;
     });
   }
 
   static get all() {
     const users = [];
-    for(let i in User.data) {
+    for(let i in User.db.data) {
       users.push(new User(i));
     }
     return users;
   }
 }
 
-try{
-  User.data = JSON.parse(fs.readFileSync(consts.file).toString());
-}catch(e){
-  User.data = {};
-}
-
 module.exports = User;
+const DB = require('./db');
+User.db = new DB(consts.file);
 
 //To avoid Report require('./user') only to get {},
 //we need to import ./report at last

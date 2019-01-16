@@ -6,14 +6,15 @@ const {promisify} = require('util');
 const fs = require('fs');
 const User = require('./user');
 const consts = require('./consts').files;
+const DB = require('./db');
 
 const writeFile = promisify(fs.writeFile);
 const unlink = promisify(fs.unlink);
-let _data;
+const db = new DB(consts.file);
 
 const getid = () => {
   const id = crypto.randomBytes(consts.idSize).toString(consts.idEncoding);
-  if(id in _data) {
+  if(id in db.data) {
     return getid();
   } else {
     return id;
@@ -22,7 +23,7 @@ const getid = () => {
 
 module.exports = (req, resp) => {
   if(typeof req === typeof "") {
-    return _data[req];
+    return db.data[req];
   }
   return (async () => {
     const session = new Session(req, resp || {setHeader:a => a});
@@ -32,7 +33,7 @@ module.exports = (req, resp) => {
         resp.end("401 Unauthorized");
       }
       const id = url.parse(req.url).pathname.split("/").pop();
-      const obj = _data[id];
+      const obj = db.data[id];
       if(!obj) {
         resp.writeHead(404);
         resp.end("404 Not Found");
@@ -43,10 +44,10 @@ module.exports = (req, resp) => {
           resp.end("401 Unauthorized");
           return;
         }
-        utils.logEvent(new User(obj.userid), "file:delete", `Deleted file ${_data[id].name} (${id})`);
-        delete _data[id];
-        await writeFile(consts.file, JSON.stringify(_data));
+        utils.logEvent(new User(obj.userid), "file:delete", `Deleted file ${db.data[id].name} (${id})`);
         await unlink(consts.dir + id + consts.ext);
+        delete db.data[id];
+        db.update();
         resp.writeHead(200);
         resp.end("OK");
         return;
@@ -71,21 +72,15 @@ module.exports = (req, resp) => {
       if(!data) throw new Error("No data received");
       if(data.length > consts.maxlength) throw new Error("MaxLength Exceeded");
       const id = getid();
-      _data[id] = {
+      db.data[id] = {
         name,
         length:data.length,
         userid:session.get("userid")
       };
-      utils.logEvent(new User(session.get("userid")), "file:new", `Uploaded file ${_data[id].name} (${id})`);
+      db.update();
+      utils.logEvent(new User(session.get("userid")), "file:new", `Uploaded file ${db.data[id].name} (${id})`);
       await writeFile(consts.dir + id + consts.ext, data);
-      await writeFile(consts.file, JSON.stringify(_data));
       return id;
     }
   })();
 };
-
-try{
-  _data = JSON.parse(fs.readFileSync(consts.file).toString());
-}catch(e){
-  _data = {};
-}

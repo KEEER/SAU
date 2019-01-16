@@ -1,13 +1,7 @@
-const fs = require('fs');
 const crypto = require('crypto');
 const User = require('./user');
+const DB = require('./db');
 const consts = require('./consts').application;
-
-let _data;
-
-function update() {
-  Application.data = Application.data;
-}
 
 class Application{
   constructor(id) {
@@ -16,12 +10,12 @@ class Application{
   }
 
   get(k) {
-    return Application.data[this.id][k];
+    return Application.db.data[this.id][k];
   }
 
   set(k, v) {
-    Application.data[this.id][k] = v;
-    update();
+    Application.db.data[this.id][k] = v;
+    Application.db.update();
   }
 
   get user() {
@@ -133,7 +127,7 @@ class Application{
   }
 
   static add(obj) {
-    Application.data[obj.id] = obj;
+    Application.db.data[obj.id] = obj;
     update();
     return new Application(obj.id);
   }
@@ -146,7 +140,7 @@ class Application{
   }
 
   static has(id) {
-    return (id in Application.data);
+    return (id in Application.db.data);
   }
 
   static createId(){
@@ -154,30 +148,15 @@ class Application{
     if(Application.has(id)) {
       return Application.createId();
     }
-    delete Application.data[id];
+    delete Application.db.data[id];
     update();
     return id;
   }
 
-  static get data() {
-    return _data;
-  }
-
-  static set data(data) {
-    if(!_data){
-      _data = data;
-      return;
-    }
-    fs.writeFile(consts.file, JSON.stringify(data), (err) => {
-      if (err) console.error(err);
-      _data = data;
-    });
-  }
-
   static getApplicationsById(id) {
     const applications = [];
-    for(let i in Application.data) {
-      if(Application.data[i].userid === id) {
+    for(let i in Application.db.data) {
+      if(Application.db.data[i].userid === id) {
         applications.push(new Application(i));
       }
     }
@@ -186,7 +165,7 @@ class Application{
 
   static getApplicationsByType(type) {
     const applications = [];
-    for(let i in Application.data) {
+    for(let i in Application.db.data) {
       const application = new Application(i);
       if(application.user.type === type || (application.type === "room" && type === "room")) {
         applications.push(application);
@@ -197,17 +176,13 @@ class Application{
 
   static get all() {
     const applications = [];
-    for(let i in Application.data) {
+    for(let i in Application.db.data) {
       applications.push(new Application(i));
     }
     return applications;
   }
 }
 
-try{
-  Application.data = JSON.parse(fs.readFileSync(consts.file).toString());
-}catch(e){
-  Application.data = {};
-}
+Application.db = new DB(consts.file);
 
 module.exports = Application;

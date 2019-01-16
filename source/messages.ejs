@@ -77,7 +77,7 @@
              <% }); %>
            </div>
            <% if(user.role === "admin") { %>
-           <div id="all" class="tab current mdc-list mdc-list--two-line" data-mdc-auto-init="MDCList">
+           <div id="all" class="tab mdc-list mdc-list--two-line" data-mdc-auto-init="MDCList">
               <% require("./message").all.sort((msg1, msg2) => {
                 if(msg1.read === msg2.read) {
                   return (msg1.read ? 1 : -1) * msg2.time - msg1.time;

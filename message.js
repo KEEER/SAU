@@ -2,12 +2,7 @@ const fs = require('fs');
 const crypto = require('crypto');
 const User = require('./user');
 const consts = require('./consts').message;
-
-let _data;
-
-function update() {
-  Message.data = Message.data;
-}
+const DB = require('./db');
 
 class Message{
   constructor(id) {
@@ -16,12 +11,12 @@ class Message{
   }
 
   get(k) {
-    return Message.data[this.id][k];
+    return Message.db.data[this.id][k];
   }
 
   set(k, v) {
-    Message.data[this.id][k] = v;
-    update();
+    Message.db.data[this.id][k] = v;
+    Message.db.update();
   }
 
   get to() {
@@ -107,7 +102,7 @@ class Message{
   }
 
   static add(obj) {
-    Message.data[obj.id] = obj;
+    Message.db.data[obj.id] = obj;
     update();
     return new Message(obj.id);
   }
@@ -120,7 +115,7 @@ class Message{
   }
 
   static has(id) {
-    return (id in Message.data);
+    return (id in Message.db.data);
   }
 
   static createId(){
@@ -128,30 +123,15 @@ class Message{
     if(Message.has(id)) {
       return Message.createId();
     }
-    delete Message.data[id];
+    delete Message.db.data[id];
     update();
     return id;
   }
 
-  static get data() {
-    return _data;
-  }
-
-  static set data(data) {
-    if(!_data){
-      _data = data;
-      return;
-    }
-    fs.writeFile(consts.file, JSON.stringify(data), (err) => {
-      if (err) console.error(err);
-      _data = data;
-    });
-  }
-
   static getMessagesById(id) {
     const messages = [];
-    for(let i in Message.data) {
-      if(Message.data[i].to === id) {
+    for(let i in Message.db.data) {
+      if(Message.db.data[i].to === id) {
         messages.push(new Message(i));
       }
     }
@@ -160,8 +140,8 @@ class Message{
 
   static getMessagesByAuthorId(id) {
     const messages = [];
-    for(let i in Message.data) {
-      if(Message.data[i].userid === id) {
+    for(let i in Message.db.data) {
+      if(Message.db.data[i].userid === id) {
         messages.push(new Message(i));
       }
     }
@@ -170,7 +150,7 @@ class Message{
 
   static getMessagesByType(type) {
     const messages = [];
-    for(let i in Message.data) {
+    for(let i in Message.db.data) {
       const message = new Message(i);
       if(message.user.type === type) {
         messages.push(message);
@@ -181,17 +161,13 @@ class Message{
 
   static get all() {
     const messages = [];
-    for(let i in Message.data) {
+    for(let i in Message.db.data) {
       messages.push(new Message(i));
     }
     return messages;
   }
 }
 
-try{
-  Message.data = JSON.parse(fs.readFileSync(consts.file).toString());
-}catch(e){
-  Message.data = {};
-}
+Message.db = new DB(consts.file);
 
 module.exports = Message;
