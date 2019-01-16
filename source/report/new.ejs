@@ -14,6 +14,7 @@
                case "association":%>
             <p>社团：<%= user.name %></p>
             <form action="/report/new" method="post">
+            <%- include("/partial/csrf") %>
             <%- include("/mdc/input",{label:"标题",name:"title",required:true}) %>
             <%- include("/mdc/select",{label:"活动规模",name:"size",required:true,options:[{label:"小型活动",value:"small"},{label:"大型活动",value:"large"},{label:"超大型活动",value:"xlarge"},{label:"校外活动",value:"outer"}]}) %>
             <%- include("/mdc/input",{label:"开始时间",name:"begin",required:true}) %>

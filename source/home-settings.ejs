@@ -16,6 +16,7 @@
           <p class="mdc-theme--primary bold">此部分设置请极其小心！错误的设置可能导致主页无法访问！</p>
           <span>图片请伸缩至同一宽高比后再上传。</span><br />
           <form method="post">
+            <%- include("/partial/csrf") %>
             <%- include("/mdc/textarea",{
               label:"滚动图片",
               value:JSON.stringify(require("./home").carousel, null, 2),

@@ -19,7 +19,7 @@ class Session{
     const cookies = req.headers.cookie || "";
     const sessid = this.id = cookie.parse(cookies)[consts.name];
     if(!Session.hasId(sessid)) {
-      const id =this.id = Session.createId();
+      const id = this.id = Session.createId();
       resp.setHeader("Set-Cookie",cookie.serialize(consts.name, id,{path:"/"}));
     }
     this.set("created",Date.now());
@@ -34,14 +34,32 @@ class Session{
     return Session.data[this.id][k];
   }
 
-  remove(k){
-    if(!k){
+  remove(k) {
+    if(!k) {
       delete Session.data[this.id];
       update();
       return;
     }
     delete (Session.data[this.id])[k];
     update();
+  }
+
+  getCsrfToken(path) {
+    const existingToken = this.get("csrf." + path);
+    if(existingToken) {
+      return existingToken;
+    }
+    const token = crypto.randomBytes(consts.csrfLength).toString(consts.csrfEncoding);
+    this.set("csrf." + path, token);
+    return token;
+  }
+
+  verifyCsrfToken(path, token) {
+    const _token = this.get("csrf." + path);
+    if(_token && _token === token) {
+      this.remove("csrf." + path);
+      return true;
+    } else return false;
   }
 
   static createId(){

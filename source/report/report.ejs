@@ -41,6 +41,7 @@
                 <tr><td class="right">评分</td><td class="left"><%- include("/partial/score",{report,user}) %></td></tr>
               </table>
               <% if(user.role=="admin"||user.role=="officer"){ %>
+                <%- include("/partial/csrf") %>
                 <br />
                 <input type="submit" class="mdc-button mdc-button--raised" data-mdc-auto-init="MDCRipple" value="提交更改" />
               <% } %>

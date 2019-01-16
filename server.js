@@ -140,6 +140,9 @@ const ejsHandlers = {
     ].forEach(el => {
       if(!data[el]) valid = false;
     });
+    if(!utils.verifyCsrfToken(req, data)) {
+      valid = false;
+    }
     if(!valid) {
       utils.redirect(resp, "/report/new?invalid");
       return;
@@ -194,6 +197,9 @@ const ejsHandlers = {
       });
       break;
     }
+    if(!utils.verifyCsrfToken(req, data)) {
+      valid = false;
+    }
     if(!valid) {
       utils.redirect(resp, "/application/new?invalid");
       return;
@@ -221,6 +227,9 @@ const ejsHandlers = {
     ].forEach(el => {
       if(!data[el]) valid = false;
     });
+    if(!utils.verifyCsrfToken(req, data)) {
+      valid = false;
+    }
     if(!valid) {
       utils.redirect(resp, "/message/new?invalid");
       return;
@@ -258,6 +267,9 @@ const ejsHandlers = {
         console.log(e);
       }
     });
+    if(!utils.verifyCsrfToken(req, data)) {
+      valid = false;
+    }
     if(!valid) {
       utils.redirect(resp, "/home-settings?invalid");
       return;
@@ -306,6 +318,9 @@ const ejsHandlers = {
     if(data.role === "association" && data.type === "room") {
       valid = false;
     }
+    if(!utils.verifyCsrfToken(req, data)) {
+      valid = false;
+    }
     if(!valid) {
       utils.redirect(resp, "/user/new?invalid");
       return;
@@ -338,11 +353,7 @@ consts.http.ejsFiles.forEach(file => {
         log = await utils.eventLog;
       }
       utils.htmlHead(resp);
-      resp.end(await utils.renderFile(`/${file}.ejs`,{
-        user,
-        associations,
-        log
-      }));
+      await utils.serveEjs(req, resp, `/${file}.ejs`, {associations, log});
     }
   });
 });
@@ -373,8 +384,15 @@ vurl.add({
         return;
       }
       const score = parseInt(data.score);
-      if(score < (report.score || 0) && user.role !== "admin") {
+      if(
+        (score < (report.score || 0) &&
+         user.role !== "admin"))
+      {
         utils.redirect(resp, "?needAdmin");
+        return;
+      }
+      if(!utils.verifyCsrfToken(req, data)) {
+        utils.redirect(resp, "?invalid");
         return;
       }
       report.score = score;
@@ -392,10 +410,7 @@ vurl.add({
       }
     }
     utils.htmlHead(resp);
-    resp.end(await utils.renderFile("/report/report.ejs", {
-      user,
-      report
-    }));
+    await utils.serveEjs(req, resp, "/report/report.ejs", {report});
   }
 });
 
@@ -413,10 +428,11 @@ vurl.add({
     }
     const application = new Application(id);
     if(req.method !== "GET") {
-      if(user.role === "association" || (
+      if((user.role === "association" || (
         user.type === "room" &&
-        application.type !== "room"
-      )) {
+        application.type !== "room")) ||
+        !utils.verifyCsrfToken(req, data))
+      {
         utils.htmlHead(resp, 403);
         resp.end("403 Forbidden");
         return;
@@ -447,10 +463,7 @@ vurl.add({
       }
     }
     utils.htmlHead(resp);
-    resp.end(await utils.renderFile("/application/application.ejs", {
-      user,
-      application
-    }));
+    await utils.serveEjs(req, resp, "/application/application.ejs", {application});
   }
 });
 
@@ -474,7 +487,7 @@ vurl.add({
         return;
       }
       const data = await utils.postData(req, true);
-      if(!data || !data.score) {
+      if(!data || !data.score || !utils.verifyCsrfToken(req, data)) {
         utils.htmlHead(resp, 400);
         resp.end("400 Bad Request");
         return;
@@ -492,10 +505,7 @@ vurl.add({
       }
     }
     utils.htmlHead(resp);
-    resp.end(await utils.renderFile("/message/message.ejs", {
-      user,
-      message:msg
-    }));
+    await utils.serveEjs(req, resp, "/message/message.ejs", {message:msg});
   }
 });
 
@@ -517,10 +527,7 @@ vurl.add({
       return;
     }
     utils.htmlHead(resp);
-    resp.end(await utils.renderFile("/association/association.ejs", {
-      user,
-      association:new User(id)
-    }));
+    await utils.serveEjs(req, resp, "/association/association.ejs", {association:new User(id)});
   }
 });
 
@@ -544,10 +551,7 @@ vurl.add({
     switch(req.method) {
       case "GET":
       utils.htmlHead(resp);
-      resp.end(await utils.renderFile("/user/user.ejs", {
-        user,
-        _user:new User(id)
-      }));
+      await utils.serveEjs(req, resp, "/user/user.ejs", {_user:new User(id)});
       return;
 
       case "POST":
@@ -576,6 +580,9 @@ vurl.add({
       }
       let contact = null;
       if(_user.role === "association") {
+        if(data.type === "room") {
+          error += "社团类型不能为定教室";
+        }
         try {
           contact = JSON.parse(data.contact);
         } catch(e) {
@@ -585,13 +592,15 @@ vurl.add({
       if(data.id !== id && User.has(data.id)) { //ID Collision
         error += "uid撞上了;";
       }
+      if(!utils.verifyCsrfToken(req, data)) {
+        error += "奇奇怪怪的问题";
+      }
       if(error) {
         utils.htmlHead(resp);
-        resp.end(await utils.renderFile("/user/user.ejs", {
-          user,
+        await utils.serveEjs(req, resp, "/user/user.ejs", {
           error,
           _user:new User(id)
-        }));
+        });
       } else {
         if(id !== data.id) { //Modify all related materials
           Application.
@@ -634,10 +643,7 @@ vurl.add({
         utils.logEvent(user, "user:edit", `Modified user ${id}:\n${JSON.stringify(data, null, 2)}`);
         if(id === data.id) {
           utils.htmlHead(resp);
-          resp.end(await utils.renderFile("/user/user.ejs", {
-            user,
-            _user:new User(data.id)
-          }));
+          await utils.serveEjs(req, resp, "/user/user.ejs", {_user:new User(data.id)});
         } else {
           utils.redirect(resp, `/user/${data.id}`);
         }
@@ -651,6 +657,7 @@ vurl.add({
 const server = http.createServer(async (req, resp) => {
   resp.setHeader("Server", "SAU/" + consts.version);
   resp.setHeader("X-Author", ["Alan-Liang", "KEEER"]);
+  resp.setHeader("X-Frame-Options", "DENY");
   const {pathname} = url.parse(req.url);
   const cb = vurl.query(pathname);
   if(cb) {

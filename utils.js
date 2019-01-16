@@ -1,6 +1,7 @@
 const querystring = require('querystring');
 const url = require('url');
 const fs = require('fs');
+const crypto = require('crypto');
 const mime = require('mime');
 const etag = require('etag');
 const ejs = require('ejs');
@@ -66,12 +67,24 @@ class Utils{
   htmlHead(resp, status) {
     resp.writeHead(status || 200, {"Content-Type":"text/html; charset=utf8"});
   }
-  renderFile(path, obj) {
-    obj.require = require;
-    return ejs.renderFile(consts.http.ejsRoot + path, obj, {
+  async serveEjs(req, resp, path, obj) {
+    const session = new Session(req, resp);
+    let user;
+    if(session.get("userid")) {
+      user = new User(session.get("userid"))
+    }
+    obj = Object.assign(obj, {
+      require,
+      session,
+      req,
+      resp,
+      user,
+      path:url.parse(req.url).pathname
+    });
+    resp.end(await ejs.renderFile(consts.http.ejsRoot + path, obj, {
       root:consts.http.ejsRoot,
       rmWhitespace:true
-    });
+    }));
   }
   authenticate(req, resp) {
     const session = new Session(req, resp);
@@ -117,6 +130,16 @@ class Utils{
   }
   get eventLog() {
     return promisify(fs.readFile)(consts.event.logFile);
+  }
+  verifyCsrfToken(req, data) {
+    if(!data || !data._csrf) return false;
+    try {
+      const path = url.parse(req.url).pathname;
+      const session = new Session(req, {});
+      return session.verifyCsrfToken(path, data._csrf);
+    } catch(e) {
+      return false;
+    }
   }
 }
 module.exports = new Utils();

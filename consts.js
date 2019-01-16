@@ -1,6 +1,6 @@
 const fs = require('fs');
 const consts = {
-  version:"0.1.33",
+  version:"0.1.34",
   http:{
     logFile:"access.log",
     realIpHeader:"x-real-ip",
@@ -39,7 +39,9 @@ const consts = {
     name:"sau-sessid",
     length:64,
     expires:20 * 60 * 1000, // 20 min,
-    clearTimeout:10 * 60 * 1000 //20 min
+    clearTimeout:10 * 60 * 1000, //20 min
+    csrfLength:8,
+    csrfEncoding:"base64"
   },
   user:{
     file:"users.json",
