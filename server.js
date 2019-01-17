@@ -430,15 +430,14 @@ vurl.add({
     if(req.method !== "GET") {
       if((user.role === "association" || (
         user.type === "room" &&
-        application.type !== "room")) ||
-        !utils.verifyCsrfToken(req, data))
+        application.type !== "room")))
       {
         utils.htmlHead(resp, 403);
         resp.end("403 Forbidden");
         return;
       }
       const data = await utils.postData(req, true);
-      if(!data || !data.score || !data.reply) {
+      if(!data || !data.score || !data.reply || !utils.verifyCsrfToken(req, data)) {
         utils.htmlHead(resp, 400);
         resp.end("400 Bad Request");
         return;
@@ -556,6 +555,37 @@ vurl.add({
 
       case "POST":
       const data = await utils.postData(req, true);
+      const _user = new User(id);
+      if(data.action === "delete") {
+        if(!utils.verifyCsrfToken(req, data)) {
+          utils.htmlHead(resp, 400);
+          resp.end("400 Bad Request");
+          return;
+        }
+        Application.
+          getApplicationsById(id).
+          concat(Report.getReportsById(id)).
+          concat(Message.getMessagesByAuthorId(id)).
+          forEach(el => {
+            el.remove();
+          });
+        Session.all.forEach(session => {
+          if(session.get("userid") === id) {
+            session.remove();
+          }
+        });
+        if(_user.role === "association") {
+          Message.getMessagesById(id).forEach(msg => {
+            msg.remove();
+          });
+        }
+        delete User.db.data[id];
+        User.db.update();
+        utils.logEvent(user, "user:remove", `Removed user ${id}`);
+        utils.redirect(resp, "/users");
+        return;
+      }
+
       let error = "";
       if(!data) {
         resp.htmlHead(resp, 400);
@@ -567,7 +597,6 @@ vurl.add({
       ].forEach(el => {
         if(!data[el]) error += `${el} 未填写;`;
       });
-      const _user = new User(id);
       switch(_user.role) {
         case "admin":
         break;
@@ -640,6 +669,7 @@ vurl.add({
           _user.passwd = User.hash(data.passwd, _user.generateSalt());
           data.passwd = "[[Removed]]";
         }
+        User.db.update();
         utils.logEvent(user, "user:edit", `Modified user ${id}:\n${JSON.stringify(data, null, 2)}`);
         if(id === data.id) {
           utils.htmlHead(resp);

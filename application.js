@@ -18,6 +18,15 @@ class Application{
     Application.db.update();
   }
 
+  remove(k) {
+    if(!k) {
+      delete Application.db.data[this.id];
+    } else {
+      delete Application.db.data[this.id][k];
+    }
+    Application.db.update();
+  }
+
   get user() {
     return new User(this.userid);
   }

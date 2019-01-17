@@ -1,4 +1,3 @@
-const fs = require('fs');
 const crypto = require('crypto');
 const User = require('./user');
 const consts = require('./consts').message;
@@ -16,6 +15,15 @@ class Message{
 
   set(k, v) {
     Message.db.data[this.id][k] = v;
+    Message.db.update();
+  }
+
+  remove(k) {
+    if(!k) {
+      delete Message.db.data[this.id];
+    } else {
+      delete Message.db.data[this.id][k];
+    }
     Message.db.update();
   }
 
@@ -103,7 +111,7 @@ class Message{
 
   static add(obj) {
     Message.db.data[obj.id] = obj;
-    update();
+    Message.db.update();
     return new Message(obj.id);
   }
 
@@ -124,7 +132,7 @@ class Message{
       return Message.createId();
     }
     delete Message.db.data[id];
-    update();
+    Message.db.update();
     return id;
   }
 

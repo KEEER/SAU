@@ -1,4 +1,3 @@
-const fs = require('fs');
 const crypto = require('crypto');
 const User = require('./user');
 const consts = require('./consts').report;
@@ -16,6 +15,15 @@ class Report{
 
   set(k, v) {
     Report.db.data[this.id][k] = v;
+    Report.db.update();
+  }
+
+  remove(k) {
+    if(!k) {
+      delete Report.db.data[this.id];
+    } else {
+      delete Report.db.data[this.id][k];
+    }
     Report.db.update();
   }
 
@@ -113,7 +121,7 @@ class Report{
 
   static add(obj) {
     Report.db.data[obj.id] = obj;
-    update();
+    Report.db.update();
     return new Report(obj.id);
   }
 
