@@ -7,13 +7,13 @@
     <%- include("/partial/drawer",{user:user}) %>
     <%- include("/partial/appbar",{title:"新建用户"}) %>
     <div id="wrapper" class="mdc-top-app-bar--fixed-adjust">
-      <%- include("/partial/csrf") %>
       <div id="content-in">
         <div id="content">
           <div class="mdc-card left" id="application-new">
             <% switch(user.role) {
                case "admin":%>
             <form action="/user/new" method="post">
+            <%- include("/partial/csrf") %>
             <%- include("/mdc/input",{label:"uid",name:"id",required:true}) %>
             <%- include("/mdc/input",{label:"显示名",name:"name",required:true}) %>
             <%- include("/mdc/input",{label:"密码",type:"password",name:"passwd",required:true}) %>
