@@ -12,7 +12,9 @@
           <div class="mdc-card" id="user">
             <h1 class="mdc-typography-headline1">
               <%= _user.name %>
+              <% if(user.id !== _user.id) { //never remove self! %>
               <i class="mdc-icon-button material-icons" onclick="document.getElementById('dialog').MDCDialog.open(),void(0)">delete</i>
+              <% } %>
             </h1>
             <form method="post">
               <%- include("/partial/csrf") %>
@@ -96,11 +98,5 @@
       <div class="mdc-dialog__scrim"></div>
     </div>
     <%- include("/partial/footer") %>
-    <% if(typeof error !== "undefined") { %>
-    <script>
-    snackbar.labelText = "<%= error %>";
-    snackbar.open();
-    </script>
-    <% } %>
   </body>
 </html>

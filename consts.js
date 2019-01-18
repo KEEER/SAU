@@ -1,6 +1,6 @@
 const fs = require('fs');
 const consts = {
-  version:"0.1.39",
+  version:"0.1.40",
   http:{
     logFile:"access.log",
     realIpHeader:"x-real-ip",
@@ -31,7 +31,9 @@ const consts = {
     ],
     errorMessage:{
       501:"The server has encountered some strange error. Maybe a monster ate the server?",
-      404:"404. The page wasn't found by any means."
+      404:"404. The page wasn't found by any means.",
+      403:"403 Unauthorized. You are not authorized to view this page.",
+      400:"400. Your browser has sent us an invalid request, thich we cannot resolve."
     }
   },
   session:{

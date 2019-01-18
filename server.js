@@ -11,6 +11,7 @@ const Application = require('./application');
 const Message = require('./message');
 const Home = require('./home');
 const {vurl} = require("@alan-liang/utils");
+const {InternalError, redirect, httpError, internalRedirect} = require("./internal-error");
 
 //serve static files
 consts.http.staticFiles.forEach(name => {
@@ -31,7 +32,7 @@ vurl.add({
       utils.handleLoggedin(req, resp);
       return;
     } else {
-      vurl.query("/index.html")(req, resp);
+      throw internalRedirect("/index.html");
     }
   }
 });
@@ -47,16 +48,16 @@ vurl.add({
       return;
     }
     if(!info || !info.userid || !info.passwd) {
-      utils.redirect(resp, "/");
+      throw redirect("/");
     }
     const uid = info.userid;
     if(!User.has(uid) || !(new User(uid)).isValidPasswd(info.passwd)) {
-      utils.redirect(resp, "/?invalid");
-      return;
+      throw redirect("/?invalid");
     }
     session.set("userid",uid);
     utils.logEvent(new User(uid), "user:login", "Logged in");
     utils.handleLoggedin(req, resp);
+    return;
   }
 });
 
@@ -67,7 +68,7 @@ vurl.add({
     const session = new Session(req, resp);
     utils.logEvent({id:session.get("userid")}, "user:logout", "Logged out");
     session.remove();
-    utils.redirect(resp, "/");
+    throw redirect("/");
   }
 });
 
@@ -80,7 +81,6 @@ vurl.add({
     try {
       id = await files(req);
     } catch(e) {
-      console.error(e);
       resp.writeHead(400, {"Content-Type":"application/json"});
       resp.end('{"code":400,"text":"Bad Request"}');
       return;
@@ -104,20 +104,21 @@ const ejsHandlers = {
     try {
       passwd = await utils.postData(req, true);
     } catch(e) {
-      utils.redirect(resp, "/settings");
-      return;
+      throw redirect("/settings");
     }
     if(!user.isValidPasswd(passwd.current)) {
-      utils.redirect(resp, "/settings?invalid");
-      return;
+      throw internalRedirect(`/settings`, {
+        snackbar: "原密码不正确"
+      });
     }
     if(passwd.new !== passwd.repeat || !passwd.new) {
-      utils.redirect(resp, "/settings");
-      return;
+      throw redirect("/settings");
     }
     user.passwd = User.hash(passwd.new, user.generateSalt());
-    utils.redirect(resp, "/settings?ok");
     utils.logEvent(user, "user:passwd", "Changed password");
+    throw internalRedirect("/settings", {
+      snackbar: "修改密码成功"
+    });
   },
   "report/new":async (req, resp) => {
     const user = utils.authenticate(req, resp);
@@ -126,8 +127,9 @@ const ejsHandlers = {
     try {
       data = await utils.postData(req, true);
     } catch(e) {
-      utils.redirect(resp, "/report/new?invalid");
-      return;
+      throw internalRedirect("/report/new", {
+        snackbar: "信息填写不完整"
+      });
     }
     let valid = true;
     [
@@ -141,16 +143,19 @@ const ejsHandlers = {
       if(!data[el]) valid = false;
     });
     if(!utils.verifyCsrfToken(req, data)) {
-      valid = false;
+      throw internalRedirect("/report/new", {
+        snackbar:"CSRF不匹配"
+      });
     }
     if(!valid) {
-      utils.redirect(resp, "/report/new?invalid");
-      return;
+      throw internalRedirect("/report/new", {
+        snackbar: "信息填写不完整"
+      });
     }
     data.userid = user.id;
     const report = Report.create(data);
     utils.logEvent(user, "report:new", `Created report ${report.id}:\n${JSON.stringify(data, null, 2)}`);
-    utils.redirect(resp, "/report/" + report.id);
+    throw redirect("/report/" + report.id);
   },
   "application/new":async (req, resp) => {
     const user = utils.authenticate(req, resp);
@@ -159,8 +164,9 @@ const ejsHandlers = {
     try {
       data = await utils.postData(req, true);
     } catch(e) {
-      utils.redirect(resp, "/application/new?invalid");
-      return;
+      throw internalRedirect("/application/new", {
+        snackbar: "信息填写不完整"
+      });
     }
     let valid = true;
     [
@@ -198,16 +204,19 @@ const ejsHandlers = {
       break;
     }
     if(!utils.verifyCsrfToken(req, data)) {
-      valid = false;
+      throw internalRedirect("/application/new", {
+        snackbar: "CSRF不匹配"
+      });
     }
     if(!valid) {
-      utils.redirect(resp, "/application/new?invalid");
-      return;
+      throw internalRedirect("/application/new", {
+        snackbar: "信息填写不完整"
+      });
     }
     data.userid = user.id;
     const app = Application.create(data);
     utils.logEvent(user, "application:new", `Created application ${app.id}:\n${JSON.stringify(data, null, 2)}`);
-    utils.redirect(resp, "/application/" + app.id);
+    throw redirect("/application/" + app.id);
   },
   "message/new":async (req, resp) => {
     const user = utils.authenticate(req, resp);
@@ -216,8 +225,9 @@ const ejsHandlers = {
     try {
       data = await utils.postData(req, true);
     } catch(e) {
-      utils.redirect(resp, "/message/new?invalid");
-      return;
+      throw internalRedirect("/message/new", {
+        snackbar: "信息填写不完整"
+      });
     }
     let valid = true;
     [
@@ -231,28 +241,28 @@ const ejsHandlers = {
       valid = false;
     }
     if(!valid) {
-      utils.redirect(resp, "/message/new?invalid");
-      return;
+      throw internalRedirect("/message/new", {
+        snackbar: "信息填写不完整"
+      });
     }
     data.userid = user.id;
     const message = Message.create(data);
     utils.logEvent(user, "message:new", `Created message ${message.id}:\n${JSON.stringify(data, null, 2)}`);
-    utils.redirect(resp, "/message/" + message.id);
+    throw redirect("/message/" + message.id);
   },
   "home-settings":async (req, resp) => {
     const user = utils.authenticate(req, resp);
     if(!user) return;
     if(user.role !== "admin") {
-      utils.htmlHead(resp, 403);
-      resp.end("403 Forbidden");
-      return;
+      throw httpError(403);
     }
     let data;
     try {
       data = await utils.postData(req, true);
     } catch(e) {
-      utils.redirect(resp, "/home-settings?invalid");
-      return;
+      throw internalRedirect("/home-settings", {
+        snackbar: "信息填写不完整"
+      });
     }
     let valid = true;
     [
@@ -264,33 +274,34 @@ const ejsHandlers = {
         Home[el] = JSON.parse(data[el]);
       } catch(e) {
         valid = false;
-        console.log(e);
       }
     });
     if(!utils.verifyCsrfToken(req, data)) {
-      valid = false;
+      throw internalRedirect("/home-settings", {
+        snackbar: "CSRF不匹配"
+      });
     }
     if(!valid) {
-      utils.redirect(resp, "/home-settings?invalid");
-      return;
+      throw internalRedirect("/home-settings", {
+        snackbar: "信息填写不完整"
+      });
     }
-    utils.logEvent(user, "home:change", `Updated home settings to:\n${JSON.stringify(data, null, 2)}`);
-    utils.redirect(resp, "/home");
+    utils.logEvent(user, "home:edit", `Updated home settings to:\n${JSON.stringify(data, null, 2)}`);
+    throw redirect("/home");
   },
   "user/new":async (req, resp) => {
     const user = utils.authenticate(req, resp);
     if(!user) return;
     if(user.role !== "admin") {
-      utils.htmlHead(resp, 403);
-      resp.end("403 Forbidden");
-      return;
+      throw httpError(403);
     }
     let data;
     try {
       data = await utils.postData(req, true);
     } catch(e) {
-      utils.redirect(resp, "/user/new?invalid");
-      return;
+      throw internalRedirect("/user/new", {
+        snackbar: "信息填写不完整"
+      });
     }
     let valid = true;
     [
@@ -319,15 +330,18 @@ const ejsHandlers = {
       valid = false;
     }
     if(!utils.verifyCsrfToken(req, data)) {
-      valid = false;
+      throw internalRedirect("/user/new", {
+        snackbar: "CSRF不匹配"
+      });
     }
     if(!valid) {
-      utils.redirect(resp, "/user/new?invalid");
-      return;
+      throw internalRedirect("/user/new", {
+        snackbar: "信息填写不完整"
+      });
     }
     const _user = User.create(data);
     utils.logEvent(user, "user:new", `Created user ${_user.id}:\n${JSON.stringify(data, null, 2)}`);
-    utils.redirect(resp, "/user/" + _user.id);
+    throw redirect("/user/" + _user.id);
   },
 };
 
@@ -335,13 +349,12 @@ const ejsHandlers = {
 consts.http.ejsFiles.forEach(file => {
   vurl.add({
     "path":"/" + file,
-    func:async (req, resp) => {
+    func:async (req, resp, extra) => {
       if(req.method !== "GET") {
         if(ejsHandlers[file]) {
           return await ejsHandlers[file](req, resp);
         }
-        utils.htmlHead(resp, 404);
-        resp.end(consts.http.errorMessage[404]);
+        throw httpError(404);
       }
       const user = utils.authenticate(req, resp);
       if(!user) return;
@@ -353,7 +366,8 @@ consts.http.ejsFiles.forEach(file => {
         log = await utils.eventLog;
       }
       utils.htmlHead(resp);
-      await utils.serveEjs(req, resp, `/${file}.ejs`, {associations, log});
+      const data = Object.assign({associations, log}, extra || {})
+      await utils.serveEjs(req, resp, `/${file}.ejs`, data);
     }
   });
 });
@@ -361,39 +375,35 @@ consts.http.ejsFiles.forEach(file => {
 //Reports
 vurl.add({
   regexp:/^\/report\//i,
-  func:async (req, resp) => {
+  func:async (req, resp, extra) => {
     const id = url.parse(req.url).pathname.split("/").pop().replace(/"/g,"");
     const user = utils.authenticate(req, resp);
     if(!user) return;
     if(!Report.has(id)) {
-      resp.writeHead(404, {"Content-Type":"text/plain"});
-      resp.end(consts.http.errorMessage[404]);
-      return;
+      throw httpError(404);
     }
     const report = new Report(id);
     if(req.method !== "GET") {
       if(user.role === "association" || user.type === "room") {
-        utils.htmlHead(resp, 403);
-        resp.end("403 Forbidden");
-        return;
+        throw httpError(403);
       }
       const data = await utils.postData(req, true);
       if(!data || !data.score || !data.size || parseInt(data.score) !== parseInt(data.score)) {
-        utils.htmlHead(resp, 400);
-        resp.end("400 Bad Request");
-        return;
+        throw httpError(400);
       }
       const score = parseInt(data.score);
       if(
         (score < (report.score || 0) &&
          user.role !== "admin"))
       {
-        utils.redirect(resp, "?needAdmin");
-        return;
+        throw internalRedirect(`/report/${id}`, {
+          snackbar: "扣分操作需要管理员权限"
+        });
       }
       if(!utils.verifyCsrfToken(req, data)) {
-        utils.redirect(resp, "?invalid");
-        return;
+        throw internalRedirect(`/report/${id}`, {
+          snackbar: "CSRF不匹配"
+        });
       }
       report.score = score;
       report.checkedsize = data.size;
@@ -404,27 +414,27 @@ vurl.add({
         content:`您的活动报告"${report.title}"分数已更新为${report.score}`,
       });
       utils.logEvent(user, "report:edit", `Modified report ${report.id}:\n${JSON.stringify(data, null, 2)}`);
-      if(req.url.indexOf("needAdmin") > -1) {
-        utils.redirect(resp, "?");
-        return;
-      }
+      throw internalRedirect(`/report/${id}`, {
+        snackbar: "修改成功"
+      });
     }
     utils.htmlHead(resp);
-    await utils.serveEjs(req, resp, "/report/report.ejs", {report});
+    await utils.serveEjs(req, resp, "/report/report.ejs", {
+      report,
+      snackbar: extra ? extra.snackbar : null
+    });
   }
 });
 
 //Applications
 vurl.add({
   regexp:/^\/application\//i,
-  func:async (req, resp) => {
+  func:async (req, resp, extra) => {
     const id = url.parse(req.url).pathname.split("/").pop().replace(/"/g,"");
     const user = utils.authenticate(req, resp);
     if(!user) return;
     if(!Application.has(id)) {
-      resp.writeHead(404, {"Content-Type":"text/plain"});
-      resp.end(consts.http.errorMessage[404]);
-      return;
+      throw httpError(404);
     }
     const application = new Application(id);
     if(req.method !== "GET") {
@@ -432,20 +442,17 @@ vurl.add({
         user.type === "room" &&
         application.type !== "room")))
       {
-        utils.htmlHead(resp, 403);
-        resp.end("403 Forbidden");
-        return;
+        throw httpError(403);
       }
       const data = await utils.postData(req, true);
       if(!data || !data.score || !data.reply || !utils.verifyCsrfToken(req, data)) {
-        utils.htmlHead(resp, 400);
-        resp.end("400 Bad Request");
-        return;
+        throw httpError(400);
       }
       const score = parseInt(data.score);
       if(score < (application.score || 0) && user.role !== "admin") {
-        utils.redirect(resp, "?needAdmin");
-        return;
+        throw internalRedirect(`/application/${id}`, {
+          snackbar: "扣分操作需要管理员权限"
+        });
       }
       application.score = parseInt(data.score);
       application.reply = data.reply;
@@ -456,55 +463,54 @@ vurl.add({
         content:`您的申请"${application.title}"已更新，回复为：${application.reply}，扣分为：${application.score}`,
       });
       utils.logEvent(user, "application:edit", `Modified application ${application.id}:\n${JSON.stringify(data, null, 2)}`);
-      if(req.url.indexOf("needAdmin") > -1) {
-        utils.redirect(resp, "?");
-        return;
-      }
+      throw internalRedirect(`/application/${id}`, {
+        snackbar: "更新成功"
+      });
     }
     utils.htmlHead(resp);
-    await utils.serveEjs(req, resp, "/application/application.ejs", {application});
+    await utils.serveEjs(req, resp, "/application/application.ejs", {
+      application,
+      snackbar: extra ? extra.snackbar : null
+    });
   }
 });
 
 //Messages
 vurl.add({
   regexp:/^\/message\//i,
-  func:async (req, resp) => {
+  func:async (req, resp, extra) => {
     const id = url.parse(req.url).pathname.split("/").pop().replace(/"/g,"");
     const user = utils.authenticate(req, resp);
     if(!user) return;
     if(!Message.has(id)) {
-      resp.writeHead(404, {"Content-Type":"text/plain"});
-      resp.end(consts.http.errorMessage[404]);
-      return;
+      throw httpError(404);
     }
     const msg = new Message(id);
     if(req.method !== "GET") {
       if(user.role === "association") {
-        utils.htmlHead(resp, 403);
-        resp.end("403 Forbidden");
-        return;
+        throw httpError(403);
       }
       const data = await utils.postData(req, true);
       if(!data || !data.score || !utils.verifyCsrfToken(req, data)) {
-        utils.htmlHead(resp, 400);
-        resp.end("400 Bad Request");
-        return;
+        throw httpError(400);
       }
       const score = parseInt(data.score);
       if(score < (msg.score || 0) && user.role !== "admin") {
-        utils.redirect(resp, "?needAdmin");
-        return;
+        throw internalRedirect(`/message/${id}`, {
+          snackbar: "扣分操作需要管理员权限"
+        });
       }
       msg.score = parseInt(data.score);
       utils.logEvent(user, "message:edit", `Modified message ${msg.id}:\n${JSON.stringify(data, null, 2)}`);
-      if(req.url.indexOf("needAdmin") > -1) {
-        utils.redirect(resp, "?");
-        return;
-      }
+      throw internalRedirect(`/message/${id}`, {
+        snackbar: "更新成功"
+      });
     }
     utils.htmlHead(resp);
-    await utils.serveEjs(req, resp, "/message/message.ejs", {message:msg});
+    await utils.serveEjs(req, resp, "/message/message.ejs", {
+      message:msg,
+      snackbar:extra ? extra.snackbar : null
+    });
   }
 });
 
@@ -516,14 +522,10 @@ vurl.add({
     const user = utils.authenticate(req, resp);
     if(!user) return;
     if(!User.has(id)) {
-      resp.writeHead(404, {"Content-Type":"text/plain"});
-      resp.end(consts.http.errorMessage[404]);
-      return;
+      throw httpError(404);
     }
     if(user.role === "association") {
-      utils.htmlHead(resp, 403);
-      resp.end("403 Forbidden");
-      return;
+      throw httpError(403);
     }
     utils.htmlHead(resp);
     await utils.serveEjs(req, resp, "/association/association.ejs", {association:new User(id)});
@@ -533,34 +535,31 @@ vurl.add({
 //Users
 vurl.add({
   regexp:/^\/user\//i,
-  func:async (req, resp) => {
+  func:async (req, resp, extra) => {
     const id = url.parse(req.url).pathname.split("/").pop().replace(/"/g,"");
     const user = utils.authenticate(req, resp);
     if(!user) return;
     if(!User.has(id)) {
-      resp.writeHead(404, {"Content-Type":"text/plain"});
-      resp.end(consts.http.errorMessage[404]);
-      return;
+      throw httpError(404);
     }
     if(user.role !== "admin") {
-      utils.htmlHead(resp, 403);
-      resp.end("403 Forbidden");
-      return;
+      throw httpError(403);
     }
     switch(req.method) {
       case "GET":
       utils.htmlHead(resp);
-      await utils.serveEjs(req, resp, "/user/user.ejs", {_user:new User(id)});
+      await utils.serveEjs(req, resp, "/user/user.ejs", {
+        _user:new User(id),
+        snackbar:extra ? extra.snackbar : null
+      });
       return;
 
       case "POST":
       const data = await utils.postData(req, true);
       const _user = new User(id);
       if(data.action === "delete") {
-        if(!utils.verifyCsrfToken(req, data)) {
-          utils.htmlHead(resp, 400);
-          resp.end("400 Bad Request");
-          return;
+        if(id === user.id || !utils.verifyCsrfToken(req, data)) {
+          throw httpError(400);
         }
         Application.
           getApplicationsById(id).
@@ -582,14 +581,12 @@ vurl.add({
         delete User.db.data[id];
         User.db.update();
         utils.logEvent(user, "user:remove", `Removed user ${id}`);
-        utils.redirect(resp, "/users");
-        return;
+        throw redirect("/users");
       }
 
       let error = "";
       if(!data) {
-        resp.htmlHead(resp, 400);
-        resp.end();
+        throw httpError(400);
       }
       [
         "id",
@@ -627,7 +624,7 @@ vurl.add({
       if(error) {
         utils.htmlHead(resp);
         await utils.serveEjs(req, resp, "/user/user.ejs", {
-          error,
+          snackbar:error,
           _user:new User(id)
         });
       } else {
@@ -675,7 +672,7 @@ vurl.add({
           utils.htmlHead(resp);
           await utils.serveEjs(req, resp, "/user/user.ejs", {_user:new User(data.id)});
         } else {
-          utils.redirect(resp, `/user/${data.id}`);
+          throw redirect(`/user/${data.id}`);
         }
       }
       return;
@@ -683,30 +680,53 @@ vurl.add({
   }
 });
 
-//start server
-const server = http.createServer(async (req, resp) => {
-  resp.setHeader("Server", "SAU/" + consts.version);
-  resp.setHeader("X-Author", ["Alan-Liang", "KEEER"]);
-  resp.setHeader("X-Frame-Options", "DENY");
-  const {pathname} = url.parse(req.url);
-  const cb = vurl.query(pathname);
-  if(cb) {
-    try{
-      await cb(req, resp);
-      utils.logRequest(req, resp);
-    }catch(e){
-      try{
-        utils.logRequest(req, resp, e);
-        utils.logEvent({id:"[[Server]]"}, "server:error", e.stack || e);
-        resp.writeHead(501, {"Content-Type":"text/plain"});
-        resp.end(consts.http.errorMessage[501]);
-        return;
-      }catch(e1){}
-    }
-  }else{
-    resp.writeHead(404, {"Content-Type":"text/plain"});
-    resp.end(consts.http.errorMessage[404]);
+const handleCallback = async (req, resp, cb, extra) => {
+  if(!cb) return;
+  try{
+    await cb(req, resp, extra);
     utils.logRequest(req, resp);
+  }catch(e){
+    if(e instanceof InternalError) {
+      switch(e.type) {
+        case InternalError.HTTP_ERROR:
+        resp.writeHead(e.data, {"Content-Type":"text/plain"});
+        resp.end(consts.http.errorMessage[e.data] || `HTTP Error ${e.data}`);
+        break;
+
+        case InternalError.INTERNAL_REDIRECT:
+        req.url = e.data;
+        req.method = "GET";
+        return await handleRequest(req, resp, e.extra);
+
+        case InternalError.REDIRECT:
+        utils.redirect(resp, e.data);
+        return;
+      }
+    } else try {
+      utils.logRequest(req, resp, e);
+      utils.logEvent({id:"[[Server]]"}, "server:error", e.stack || e);
+      resp.writeHead(501, {"Content-Type":"text/plain"});
+      resp.end(consts.http.errorMessage[501]);
+      return;
+    }catch(e1){}
   }
-});
+};
+
+const handleRequest = async (req, resp, extra) => {
+    resp.setHeader("Server", "SAU/" + consts.version);
+    resp.setHeader("X-Author", ["Alan-Liang", "KEEER"]);
+    resp.setHeader("X-Frame-Options", "DENY");
+    const { pathname } = url.parse(req.url);
+    const cb = vurl.query(pathname);
+    if (cb) {
+      await handleCallback(req, resp, cb, extra);
+    } else {
+      resp.writeHead(404, { "Content-Type": "text/plain" });
+      resp.end(consts.http.errorMessage[404]);
+      utils.logRequest(req, resp);
+    }
+};
+
+//start server
+const server = http.createServer(handleRequest);
 server.listen(consts.http.port);

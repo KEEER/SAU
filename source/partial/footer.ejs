@@ -10,6 +10,10 @@
 <script>mdc.autoInit();</script>
 <script>
 window.snackbar = document.querySelector(".mdc-snackbar").MDCSnackbar;
+<% if(typeof snackbar !== "undefined" && snackbar) { %>
+  snackbar.labelText = "<%= snackbar %>";
+  snackbar.open();
+<% } %>
 window.drawerEl = document.getElementById('drawer');
 window.drawer = window.drawerEl.MDCDrawer;
 window.onresize = function() {

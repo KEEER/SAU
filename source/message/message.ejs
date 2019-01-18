@@ -33,12 +33,6 @@
       </div>
     </div>
     <%- include("/partial/footer") %>
-    <script>
-    if(location.href.indexOf("needAdmin") > -1) {
-      snackbar.labelText = "扣分操作需要管理员权限";
-      snackbar.open();
-    }
-    </script>
   </body>
 </html>
 <% if(user.id === message.to || user.role === message.to) {
