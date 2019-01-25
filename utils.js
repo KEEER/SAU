@@ -127,6 +127,11 @@ class Utils{
     const log = (`[${new Date().toLocaleString()}] ${uid} ${name}: ${details}\n`);
     fs.appendFile(consts.event.logFile, log, () => {});
   }
+  logEventSync(user, name, details) {
+    const uid = user.id;
+    const log = (`[${new Date().toLocaleString()}] ${uid} ${name}: ${details}\n`);
+    fs.appendFileSync(consts.event.logFile, log);
+  }
   get eventLog() {
     return promisify(fs.readFile)(consts.event.logFile);
   }
@@ -139,6 +144,11 @@ class Utils{
     } catch(e) {
       return false;
     }
+  }
+  onExit(cb) {
+    ['SIGTERM', 'SIGINT', 'SIGHUP', 'SIGBREAK'].forEach(event => {
+      process.on(event, cb);
+    });
   }
 }
 module.exports = new Utils();

@@ -730,3 +730,20 @@ const handleRequest = async (req, resp, extra) => {
 //start server
 const server = http.createServer(handleRequest);
 server.listen(consts.http.port);
+
+//logging on start & exit
+utils.onExit(code => {
+  utils.logEventSync({id:"[[Server]]"}, "server:exit", `Process exiting with code ${code}.`);
+});
+
+process.nextTick(() => process.nextTick(() => {
+  process.on('SIGINT', () => {
+    process.exit(129);
+  });
+
+  process.on('SIGTERM', () => {
+    process.exit(130);
+  });
+}));
+
+utils.logEventSync({id:"[[Server]]"}, "server:start", "SAU Server started.");

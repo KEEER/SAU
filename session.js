@@ -3,7 +3,6 @@ const fs = require('fs');
 const crypto =  require('crypto');
 const utils = require('./utils');
 const consts = require('./consts').session;
-const DB = require('./db');
 
 class Session{
   constructor(req, resp) {
@@ -85,9 +84,9 @@ class Session{
   }
 }
 
-Session.db = new DB(consts.file);
-
 module.exports = Session;
+const DB = require('./db');
+Session.db = new DB(consts.file);
 
 //clean sessions
 const clear = () => {
