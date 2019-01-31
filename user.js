@@ -93,6 +93,14 @@ class User{
     this.set("contact", contact);
   }
 
+  get wechat() {
+    return this.get("wechat");
+  }
+
+  set wechat(wechat) {
+    this.set("wechat", wechat);
+  }
+
   get salt() {
     return this.get("salt");
   }

@@ -150,9 +150,22 @@ class Utils{
       process.on(event, cb);
     });
   }
+  notifyOfficer(user, msg) {
+    User.all.
+      filter(_user => _user.role === "officer" && _user.type === user.type).
+      forEach(officer => {
+        (officer.wechat || []).forEach(wx => {
+          wechat.send({
+            user:wx,
+            msg
+          });
+        });
+      });
+  }
 }
 module.exports = new Utils();
 
 //require('./session') at last to prevent cross-require()ing
 const Session = require('./session');
 const User = require('./user');
+const wechat = require('./wechat');

@@ -14,6 +14,9 @@ applications.json
 users.json
 home.json
 
+# wechat session
+wechat-session.json
+
 # backups
 _backup.*
 

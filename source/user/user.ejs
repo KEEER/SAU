@@ -55,6 +55,13 @@
                   value:_user.contact ? JSON.stringify(_user.contact, null, 2) : ""
                 }) %>
               <% } %>
+              <br /><br />
+              <%- include("/mdc/textarea", {
+                label:"微信ID(每行一个)",
+                name:"wechat",
+                required:false,
+                value:_user.wechat ? _user.wechat.join("\n") : ""
+              }) %>
               <br />
               <input type="submit" class="mdc-button mdc-button--raised" data-mdc-auto-init="MDCRipple" value="提交更改" />
             </form>

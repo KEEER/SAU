@@ -1,7 +1,8 @@
 const fs = require('fs');
 const consts = {
-  version:"0.1.42",
+  version:"0.1.43",
   http:{
+    origin:"https://sau-lab.keeer.net",
     logFile:"access.log",
     realIpHeader:"x-real-ip",
     port:50082,
@@ -79,13 +80,15 @@ const consts = {
       admin:{
         name:"管理员",
         id:"admin",
-        passwd:"guanli"
+        passwd:"guanli",
+        wechat:[]
       },
       officer:{
         name:"张三",
         id:"zhangsan",
         type:"room",
-        passwd:"ganshi"
+        passwd:"ganshi",
+        wechat:[]
       },
       association:{
         name:"xx社",
@@ -96,7 +99,8 @@ const consts = {
           "社长":"班级 姓名 10086",
           "副社长1":"班级 姓名 110",
           "副社长2":"班级 姓名 911"
-        }
+        },
+        wechat:[]
       }
     }
   },
@@ -128,6 +132,9 @@ const consts = {
   },
   db:{
     saveInterval:5000 //5 secs
+  },
+  wechat:{
+    sessionFile:__dirname + "/wechat-session.json"
   }
 };
 const {staticDir,staticFiles} = consts.http;
