@@ -1,6 +1,6 @@
 const fs = require('fs');
 const consts = {
-  version:"0.1.43",
+  version:"0.1.44",
   http:{
     origin:"https://sau-lab.keeer.net",
     logFile:"access.log",
@@ -39,7 +39,7 @@ const consts = {
   },
   session:{
     file:"session.json",
-    name:"sau-sessid",
+    name:"SAUSESSID",
     length:64,
     expires:20 * 60 * 1000, // 20 min,
     clearTimeout:10 * 60 * 1000, //20 min
@@ -80,15 +80,13 @@ const consts = {
       admin:{
         name:"管理员",
         id:"admin",
-        passwd:"guanli",
-        wechat:[]
+        passwd:"guanli"
       },
       officer:{
         name:"张三",
         id:"zhangsan",
         type:"room",
-        passwd:"ganshi",
-        wechat:[]
+        passwd:"ganshi"
       },
       association:{
         name:"xx社",
@@ -99,8 +97,7 @@ const consts = {
           "社长":"班级 姓名 10086",
           "副社长1":"班级 姓名 110",
           "副社长2":"班级 姓名 911"
-        },
-        wechat:[]
+        }
       }
     }
   },
@@ -134,7 +131,8 @@ const consts = {
     saveInterval:5000 //5 secs
   },
   wechat:{
-    sessionFile:__dirname + "/wechat-session.json"
+    sessionFile:__dirname + "/wechat-session.json",
+    verifyMsg: "sau32nd"
   }
 };
 const {staticDir,staticFiles} = consts.http;

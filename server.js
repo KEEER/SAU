@@ -218,6 +218,8 @@ const ejsHandlers = {
     data.userid = user.id;
     const app = Application.create(data);
     utils.logEvent(user, "application:new", `Created application ${app.id}:\n${JSON.stringify(data, null, 2)}`);
+    const msg = `您所在的类别有新的申请提交，请及时查收。\n提交人：${user.name}\n链接：${consts.http.origin}/application/${app.id}`;
+    utils.notifyOfficer(user, msg, app.type === "room");
     throw redirect("/application/" + app.id);
   },
   "message/new":async (req, resp) => {
@@ -617,7 +619,6 @@ vurl.add({
           error += "联系方式格式错误;";
         }
       }
-      data.wechat = data.wechat ? data.wechat.split(/\r?\n/) : [];
       if(data.id !== id && User.has(data.id)) { //ID Collision
         error += "uid撞上了;";
       }
@@ -656,8 +657,7 @@ vurl.add({
         [
           "name",
           "role",
-          "type",
-          "wechat"
+          "type"
         ].forEach(el => {
           if(data[el]) {
             _user[el] = data[el];

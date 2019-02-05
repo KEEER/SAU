@@ -137,7 +137,7 @@ class Application{
 
   static add(obj) {
     Application.db.data[obj.id] = obj;
-    update();
+    Application.db.update();
     return new Application(obj.id);
   }
 
@@ -158,7 +158,7 @@ class Application{
       return Application.createId();
     }
     delete Application.db.data[id];
-    update();
+    Application.db.update();
     return id;
   }
 

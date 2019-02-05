@@ -210,3 +210,4 @@ html,body{
 .mdc-fab{z-index:4;}
 .mdc-drawer{position:fixed;top:0;}
 .mdc-drawer--open~.mdc-top-app-bar{top:0 !important;}
+.mdc-card{overflow: scroll;}

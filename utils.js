@@ -150,15 +150,14 @@ class Utils{
       process.on(event, cb);
     });
   }
-  notifyOfficer(user, msg) {
-    User.all.
-      filter(_user => _user.role === "officer" && _user.type === user.type).
-      forEach(officer => {
-        (officer.wechat || []).forEach(wx => {
-          wechat.send({
-            user:wx,
-            msg
-          });
+  notifyOfficer(user, msg, isRoom) {
+    const type = isRoom ? "room" : user.type;
+    User.all
+      .filter(_user => _user.role === "officer" && _user.type === type)
+      .forEach(officer => {
+        wechat.send({
+          user:officer.name,
+          msg
         });
       });
   }
