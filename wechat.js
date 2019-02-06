@@ -12,6 +12,11 @@ try {
 }
 if(bot.PROP.uin) {
   bot.restart();
+  setTimeout(() => {
+    if(!module.exports.ready) {
+      bot.start();
+    }
+  }, consts.loginTimeout);
 } else {
   bot.start();
 }

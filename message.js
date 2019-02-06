@@ -2,6 +2,7 @@ const crypto = require('crypto');
 const User = require('./user');
 const consts = require('./consts').message;
 const DB = require('./db');
+const wechat = require('./wechat');
 
 class Message{
   constructor(id) {
@@ -119,6 +120,19 @@ class Message{
     if(!opts) throw new TypeError("Options not defined");
     opts.id = Message.createId();
     opts.time = Date.now();
+    const msg = `您有新的消息，请及时查收。${require("./consts").http.origin}/message/${opts.id}`;
+    if(!User.has(opts.to)) { //admin or officer
+      if(opts.to === "admin") {
+        utils.notifyAdmin(msg);
+      } else {
+        utils.notifyOfficer(new User(opts.userid), msg);
+      }
+    } else {
+      wechat.send({
+        user:new User(opts.to).name,
+        msg
+      });
+    }
     return Message.add(opts);
   }
 
@@ -179,3 +193,5 @@ class Message{
 Message.db = new DB(consts.file);
 
 module.exports = Message;
+
+const utils = require('./utils');

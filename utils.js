@@ -161,6 +161,16 @@ class Utils{
         });
       });
   }
+  notifyAdmin(msg) {
+    User.all
+      .filter(user => user.role === "admin")
+      .forEach(admin => {
+        wechat.send({
+          user:admin.name,
+          msg
+        });
+      });
+  }
 }
 module.exports = new Utils();
 

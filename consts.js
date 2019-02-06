@@ -1,6 +1,6 @@
 const fs = require('fs');
 const consts = {
-  version:"0.1.44",
+  version:"0.1.45",
   http:{
     origin:"https://sau-lab.keeer.net",
     logFile:"access.log",
@@ -132,7 +132,8 @@ const consts = {
   },
   wechat:{
     sessionFile:__dirname + "/wechat-session.json",
-    verifyMsg: "sau32nd"
+    verifyMsg:"sau32nd",
+    loginTimeout:10000
   }
 };
 const {staticDir,staticFiles} = consts.http;
