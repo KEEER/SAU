@@ -346,7 +346,7 @@ const ejsHandlers = {
     delete data._csrf;
     const _user = User.create(data);
     utils.logEvent(user, "user:new", `Created user ${_user.id}:\n${JSON.stringify(data, null, 2)}`);
-    throw redirect("/user/" + _user.id);
+    throw redirect("/user/" + encodeURIComponent(_user.id));
   },
 };
 
@@ -523,7 +523,7 @@ vurl.add({
 vurl.add({
   regexp:/^\/association\//i,
   func:async (req, resp) => {
-    const id = url.parse(req.url).pathname.split("/").pop().replace(/"/g,"");
+    const id = decodeURIComponent(url.parse(req.url).pathname.split("/").pop().replace(/"/g,""));
     const user = utils.authenticate(req, resp);
     if(!user) return;
     if(!User.has(id)) {
@@ -541,7 +541,7 @@ vurl.add({
 vurl.add({
   regexp:/^\/user\//i,
   func:async (req, resp, extra) => {
-    const id = url.parse(req.url).pathname.split("/").pop().replace(/"/g,"");
+    const id = decodeURIComponent(url.parse(req.url).pathname.split("/").pop().replace(/"/g,""));
     const user = utils.authenticate(req, resp);
     if(!user) return;
     if(!User.has(id)) {
