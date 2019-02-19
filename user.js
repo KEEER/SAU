@@ -73,7 +73,7 @@ class User{
     }
   }
 
-  get messagesSent () {
+  get messagesSent() {
     return Message.getMessagesByAuthorId(this.id);
   }
 

@@ -343,6 +343,7 @@ const ejsHandlers = {
         snackbar: "信息填写不完整"
       });
     }
+    delete data._csrf;
     const _user = User.create(data);
     utils.logEvent(user, "user:new", `Created user ${_user.id}:\n${JSON.stringify(data, null, 2)}`);
     throw redirect("/user/" + _user.id);
@@ -650,9 +651,10 @@ vurl.add({
               msg.to = data.id;
             });
           }
-          User.data[data.id] = User.data[id];
-          delete User.data[id];
+          _user.set("id", data.id);
           _user.id = data.id;
+          User.db.data[data.id] = User.db.data[id];
+          delete User.db.data[id];
         }
         [
           "name",
@@ -747,6 +749,10 @@ process.nextTick(() => process.nextTick(() => {
 
   process.on('SIGTERM', () => {
     process.exit(130);
+  });
+
+  process.on('SIGHUP', () => {
+    process.exit(131);
   });
 }));
 

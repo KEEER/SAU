@@ -10,7 +10,7 @@ function update() {
 class Home {
   constructor() {}
   get carousel() {
-    return Home.data.carousel;
+    return Home.data.carousel||[];
   }
   set carousel(data) {
     Home.data.carousel = data;
@@ -18,8 +18,7 @@ class Home {
   }
 
   get links() {
-    // TODO
-    return Home.data.links;
+    return Home.data.links||[];
   }
   set links(data) {
     Home.data.links = data;
