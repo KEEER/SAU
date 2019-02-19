@@ -180,7 +180,7 @@ class User{
   static create(opts) {
     if(!opts) throw new TypeError("Options not defined");
     if(!User.isValidRole(opts.role)) throw new TypeError("Illegal role");
-    const obj = Object.assign(consts.defaultOptions[opts.role], opts);
+    const obj = Object.assign({}, consts.defaultOptions[opts.role], opts);
     if(!obj.salt) {
       obj.salt = User.generateSalt();
     }
