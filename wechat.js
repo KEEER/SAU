@@ -57,18 +57,18 @@ bot.on("message", msg => {
 });
 module.exports.send = function send(config) {
   const {user = "filehelper", msg = "未知消息"} = config;
+  if(!module.exports.ready) {
+    sendQueue.push(config);
+    return;
+  }
   const contacts = [];
   for(const contact in bot.contacts) {
     contacts.push(bot.contacts[contact]);
   }
   contacts
-    .filter(contact => contact.RemarkName === user)
+    .filter(contact => contact.RemarkName.indexOf(user) > -1)
     .map(contact => contact.UserName)
     .forEach(username => {
-      if(!module.exports.ready) {
-        sendQueue.push(config);
-        return;
-      }
       bot.sendMsg(msg, username).catch(_ => {});
     });
 }

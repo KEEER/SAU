@@ -1,6 +1,6 @@
 const fs = require('fs');
 const consts = {
-  version:"0.1.48",
+  version:"0.1.49",
   http:{
     origin:"https://sau-lab.keeer.net",
     logFile:"access.log",

@@ -65,11 +65,11 @@ class User{
 
       case "officer":
       return Message.getMessagesByType(this.type).filter(msg => {
-        return msg.to === "officer";
+        return msg.get("to") === "officer";
       });
 
       case "admin":
-      return Message.getMessagesById(this.id);
+      return Message.all.filter(msg => msg.get("to") === "admin");
     }
   }
 
