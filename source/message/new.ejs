@@ -32,9 +32,13 @@
               label:"对象",
               name:"to",
               required:true,
-              options:associations.map(
-                assoc => ({label:assoc.name, value:assoc.id})
-              )
+              options:require('./user').all
+                .filter(
+                  _user => user.role === "admin" || user.type === "room" || _user.role === "officer" || _user.role === "admin" || user.type === _user.type
+                )
+                .map(
+                  _user => ({label:_user.name, value:_user.id})
+                )
             }) %>
             <%- include("/mdc/textarea",{label:"内容",name:"content",required:true}) %>
             <p>提交后不可以删除或修改，请谨慎提交。</p>

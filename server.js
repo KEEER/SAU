@@ -234,6 +234,7 @@ const ejsHandlers = {
       });
     }
     let valid = true;
+    if(user.role !== "association" && !User.has(data.to)) valid = false;
     [
       "title",
       "to",
@@ -244,6 +245,9 @@ const ejsHandlers = {
     if(!utils.verifyCsrfToken(req, data)) {
       valid = false;
     }
+    const _user = user.role === "association" ? {} : new User(data.to);
+    const couldPerform = data.to === "admin" || data.to === "officer" ||  user.role === "admin" || user.type === "room" || _user.role === "officer" || _user.role === "admin" || user.type === _user.type;
+    if(!couldPerform) valid = false;
     if(!valid) {
       throw internalRedirect("/message/new", {
         snackbar: "信息填写不完整"

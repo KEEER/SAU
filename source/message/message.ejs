@@ -36,6 +36,6 @@
     <%- include("/partial/footer") %>
   </body>
 </html>
-<% if(user.id === message.to || user.role === message.to) {
+<% if(user.id === message.get("to") || user.role === message.get("to")) {
   message.read = true;
 } %>
